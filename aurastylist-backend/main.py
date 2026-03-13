@@ -1,0 +1,31 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+
+load_dotenv()
+from mangum import Mangum
+
+from routers import analyze, style, gallery, shop, chat, profile, style_request
+app = FastAPI(title="AuraStylist Backend")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(analyze.router, prefix="/analyze", tags=["Analyze"])
+app.include_router(style.router, prefix="/style", tags=["Style"])
+app.include_router(gallery.router, prefix="/gallery", tags=["Gallery"])
+app.include_router(shop.router, prefix="/api/shop", tags=["Shop"])
+app.include_router(chat.router, prefix="/chat", tags=["Chat"])
+app.include_router(profile.router, prefix="/api/profile", tags=["Profile"])
+app.include_router(style_request.router, prefix="/api/style/request", tags=["Style Request"])
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to AuraStylist API"}
+
+handler = Mangum(app)
