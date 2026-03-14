@@ -49,7 +49,7 @@ export default function StyleMyselfForm({ onSubmit, isLoading }) {
           <input
             type="text"
             required
-            className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-black focus:ring-black dark:border-zinc-800 dark:bg-zinc-950 dark:text-white dark:focus:border-white transition-colors outline-none"
+            className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-[#D4AF37] transition-all outline-none shadow-sm"
             placeholder="Where are you going?"
             value={formData.venue}
             onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
@@ -64,7 +64,7 @@ export default function StyleMyselfForm({ onSubmit, isLoading }) {
           <input
             type="text"
             required
-            className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-black focus:ring-black dark:border-zinc-800 dark:bg-zinc-950 dark:text-white dark:focus:border-white transition-colors outline-none"
+            className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-[#D4AF37] transition-all outline-none shadow-sm"
             placeholder="What vibe do you want?"
             value={formData.aesthetic}
             onChange={(e) => setFormData({ ...formData, aesthetic: e.target.value })}
@@ -76,7 +76,7 @@ export default function StyleMyselfForm({ onSubmit, isLoading }) {
           <div>
             <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Dress Type</label>
             <select
-              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-black focus:ring-black dark:border-zinc-800 dark:bg-zinc-950 dark:text-white dark:focus:border-white transition-colors outline-none appearance-none"
+              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-[#D4AF37] transition-all outline-none shadow-sm appearance-none"
               value={formData.dressType}
               onChange={(e) => setFormData({ ...formData, dressType: e.target.value })}
             >
@@ -92,7 +92,7 @@ export default function StyleMyselfForm({ onSubmit, isLoading }) {
           <div>
             <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Price Range</label>
             <select
-              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-black focus:ring-black dark:border-zinc-800 dark:bg-zinc-950 dark:text-white dark:focus:border-white transition-colors outline-none appearance-none"
+              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-[#D4AF37] transition-all outline-none shadow-sm appearance-none"
               value={formData.priceRange}
               onChange={(e) => setFormData({ ...formData, priceRange: e.target.value })}
             >
@@ -115,7 +115,7 @@ export default function StyleMyselfForm({ onSubmit, isLoading }) {
               onDragLeave={() => setDragActive(false)}
               onDrop={handleDrop}
               className={`flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-all ${
-                dragActive ? "border-black bg-zinc-50 dark:border-white dark:bg-zinc-900" : "border-zinc-300 hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-700"
+                dragActive ? "border-[#D4AF37] bg-[#D4AF37]/5 dark:bg-[#D4AF37]/10" : "border-zinc-200 hover:border-[#D4AF37]/40 dark:border-zinc-700 dark:hover:border-zinc-600 bg-zinc-50/50 dark:bg-zinc-800/50"
               }`}
             >
               <UploadCloud className="mb-2 text-zinc-400" size={24} />
@@ -141,7 +141,7 @@ export default function StyleMyselfForm({ onSubmit, isLoading }) {
       <button
         type="submit"
         disabled={isLoading}
-        className="mt-4 flex w-full items-center justify-center rounded-xl bg-black px-4 py-4 font-bold text-white shadow-lg transition-transform active:scale-[0.98] disabled:opacity-70 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+        className="mt-6 flex w-full items-center justify-center rounded-xl bg-black px-4 py-4.5 font-bold text-white shadow-xl hover:shadow-2xl hover:scale-[1.01] transition-all active:scale-[0.98] disabled:opacity-70 dark:bg-[#D4AF37] dark:text-black dark:shadow-[0_0_20px_rgba(212,175,55,0.2)]"
       >
         {isLoading ? "Generating Style..." : "Style Me Now"}
       </button>

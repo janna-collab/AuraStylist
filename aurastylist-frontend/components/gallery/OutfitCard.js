@@ -42,8 +42,8 @@ export default function OutfitCard({ imageUrl, altText, isSelected, onSelect, on
             onClick={onSelect}
             className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 font-semibold transition-all backdrop-blur-md ${
               isSelected
-                ? "bg-green-500 text-white hover:bg-green-600"
-                : "bg-white/90 text-black hover:bg-white dark:bg-black/90 dark:text-white dark:hover:bg-black"
+                ? "bg-green-600 dark:bg-green-500 text-white shadow-lg"
+                : "bg-white/95 text-zinc-900 hover:bg-white dark:bg-black/95 dark:text-white dark:hover:bg-black border border-zinc-200 dark:border-zinc-800"
             }`}
           >
             {isSelected ? (

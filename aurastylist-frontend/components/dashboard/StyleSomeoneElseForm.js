@@ -47,8 +47,8 @@ export default function StyleSomeoneElseForm({ onSubmit, isLoading }) {
       {/* Target Person Image */}
       <div>
         <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-          <UserPlus size={18} className="text-blue-500" />
-          Upload Their Photo <span className="text-red-500">*</span>
+          <UserPlus size={18} className="text-[#D4AF37]" />
+          Upload Their Photo <span className="text-[#D4AF37]">*</span>
         </label>
         
         {!previewUrl ? (
@@ -57,7 +57,7 @@ export default function StyleSomeoneElseForm({ onSubmit, isLoading }) {
             onDragLeave={() => setDragActive(false)}
             onDrop={handleDrop}
             className={`flex h-40 w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-all ${
-              dragActive ? "border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/20" : "border-zinc-300 hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-700"
+              dragActive ? "border-[#D4AF37] bg-[#D4AF37]/5 dark:bg-[#D4AF37]/10" : "border-zinc-200 hover:border-[#D4AF37]/40 dark:border-zinc-700 dark:hover:border-zinc-600 bg-zinc-50/50 dark:bg-zinc-800/50"
             }`}
           >
             <div className="rounded-full bg-zinc-100 p-3 dark:bg-zinc-900 mb-2 text-zinc-400">
@@ -87,7 +87,7 @@ export default function StyleSomeoneElseForm({ onSubmit, isLoading }) {
         <div>
           <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Gender</label>
           <select
-            className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-black focus:ring-black dark:border-zinc-800 dark:bg-zinc-950 dark:text-white dark:focus:border-white transition-colors outline-none appearance-none"
+            className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-[#D4AF37] transition-all outline-none shadow-sm appearance-none"
             value={formData.gender}
             onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
           >
@@ -104,7 +104,7 @@ export default function StyleSomeoneElseForm({ onSubmit, isLoading }) {
           <input
             type="text"
             required
-            className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-black focus:ring-black dark:border-zinc-800 dark:bg-zinc-950 dark:text-white dark:focus:border-white transition-colors outline-none"
+            className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-[#D4AF37] transition-all outline-none shadow-sm"
             placeholder="e.g., 5'6&quot; or 168cm"
             value={formData.height}
             onChange={(e) => setFormData({ ...formData, height: e.target.value })}
@@ -120,7 +120,7 @@ export default function StyleSomeoneElseForm({ onSubmit, isLoading }) {
         <input
           type="text"
           required
-          className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-black focus:ring-black dark:border-zinc-800 dark:bg-zinc-950 dark:text-white dark:focus:border-white transition-colors outline-none"
+          className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-[#D4AF37] transition-all outline-none shadow-sm"
           placeholder="Where are they going?"
           value={formData.venue}
           onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
@@ -135,7 +135,7 @@ export default function StyleSomeoneElseForm({ onSubmit, isLoading }) {
         <input
           type="text"
           required
-          className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-black focus:ring-black dark:border-zinc-800 dark:bg-zinc-950 dark:text-white dark:focus:border-white transition-colors outline-none"
+          className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-[#D4AF37] transition-all outline-none shadow-sm"
           placeholder="What's the vibe?"
           value={formData.aesthetic}
           onChange={(e) => setFormData({ ...formData, aesthetic: e.target.value })}
@@ -145,7 +145,7 @@ export default function StyleSomeoneElseForm({ onSubmit, isLoading }) {
       <button
         type="submit"
         disabled={isLoading}
-        className="mt-4 flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-4 font-bold text-white shadow-lg shadow-blue-500/20 transition-transform active:scale-[0.98] hover:bg-blue-700 disabled:opacity-70 dark:bg-blue-500 dark:hover:bg-blue-600"
+        className="mt-6 flex w-full items-center justify-center rounded-xl bg-black px-4 py-4.5 font-bold text-white shadow-xl hover:shadow-2xl hover:scale-[1.01] transition-all active:scale-[0.98] disabled:opacity-70 dark:bg-[#D4AF37] dark:text-black dark:shadow-[0_0_20px_rgba(212,175,55,0.2)]"
       >
         {isLoading ? "Analyzing Profile & Vibe..." : "Style Them Now"}
       </button>

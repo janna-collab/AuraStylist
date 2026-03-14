@@ -4,6 +4,17 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft, ShoppingBag, ExternalLink, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/theme-toggle";
+
+const mockShopData = {
+  top: [
+    { title: "Silk Evening Blouse", price: "$120", url: "#", image: "https://images.unsplash.com/photo-1550639524-a6f58345a278?w=300&h=300&fit=crop" },
+    { title: "Chiffon Trim Longsleeve", price: "$85", url: "#", image: "https://images.unsplash.com/photo-1564584217132-2271fea73ca4?w=300&h=300&fit=crop" }
+  ],
+  bottom: [
+    { title: "Tailored Wide Leg Trousers", price: "$150", url: "#", image: "https://images.unsplash.com/photo-1584370848010-d7fe6bc767ec?w=300&h=300&fit=crop" }
+  ]
+};
 
 function ShopContent() {
   const searchParams = useSearchParams();
@@ -43,76 +54,80 @@ function ShopContent() {
     fetchShoppingData();
   }, [image_url]);
 
-  const mockShopData = {
-    top: [
-      { title: "Silk Evening Blouse", price: "$120", url: "#", image: "https://images.unsplash.com/photo-1550639524-a6f58345a278?w=300&h=300&fit=crop" },
-      { title: "Chiffon Trim Longsleeve", price: "$85", url: "#", image: "https://images.unsplash.com/photo-1564584217132-2271fea73ca4?w=300&h=300&fit=crop" }
-    ],
-    bottom: [
-      { title: "Tailored Wide Leg Trousers", price: "$150", url: "#", image: "https://images.unsplash.com/photo-1584370848010-d7fe6bc767ec?w=300&h=300&fit=crop" }
-    ]
-  };
-
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-black font-sans">
-      <header className="flex h-20 items-center px-8 border-b border-zinc-200/50 bg-white/50 backdrop-blur-md dark:border-zinc-800/50 dark:bg-black/50 sticky top-0 z-20">
+    <div className="flex min-h-screen flex-col bg-background text-foreground transition-colors duration-500 font-sans">
+      <header className="flex h-20 items-center px-8 border-b border-zinc-200 dark:border-zinc-800 glass transition-all duration-500 sticky top-0 z-20">
         <button onClick={() => router.back()} className="rounded-full p-2 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors mr-4">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-xl font-bold flex items-center gap-2 text-black dark:text-white">
+        <h1 className="text-xl font-bold flex flex-1 items-center gap-2 text-black dark:text-white">
           <ShoppingBag size={20} /> Complete the Look
         </h1>
+        <ThemeToggle />
       </header>
 
       <main className="flex-1 p-6 md:p-12 max-w-7xl mx-auto w-full">
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="h-12 w-12 animate-spin text-zinc-400 mb-6" />
-            <h2 className="text-2xl font-semibold text-black dark:text-white">Activating Stylist Agent...</h2>
-            <p className="text-zinc-500 max-w-md text-center mt-2">
-              Our AI is currently breaking down your outfit and scouring the web for the exact pieces via automated browser search. This takes a few moments.
+          <div className="flex flex-col items-center justify-center py-32 animate-in fade-in duration-1000">
+            <Loader2 className="h-10 w-10 animate-spin text-primary mb-8" />
+            <h2 className="text-3xl font-light text-zinc-950 dark:text-white font-serif italic mb-4 transition-colors">
+              Sourcing the Look...
+            </h2>
+            <p className="text-zinc-600 dark:text-zinc-400 max-w-lg text-center font-light leading-relaxed transition-colors">
+              Our agents are scanning global luxury retailers and independent
+              boutiques to pinpoint the exact garments from your curated style.
             </p>
           </div>
         ) : (
-          <div className="space-y-16">
-            <div className="flex flex-col md:flex-row gap-8 items-start">
+          <div className="space-y-16 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+            <div className="flex flex-col xl:flex-row gap-12 items-start">
+
               {/* Reference Image from query */}
               {image_url && (
-                <div className="w-full md:w-1/3 flex-shrink-0">
-                  <div className="sticky top-28 rounded-3xl overflow-hidden shadow-2xl">
+                <div className="w-full xl:w-[400px] flex-shrink-0">
+                  <div className="sticky top-32 rounded-[2rem] overflow-hidden luxury-card border-none shadow-2xl">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={image_url} alt="Reference Outfit" className="w-full h-auto object-cover" />
+                    <img src={image_url} alt="Reference Outfit" className="w-full h-auto object-cover opacity-90 hover:opacity-100 transition-opacity duration-500" />
                   </div>
                 </div>
               )}
 
               {/* Shopping Results */}
-              <div className="w-full md:w-2/3 flex flex-col gap-12">
+              <div className="w-full flex-1 flex flex-col gap-16">
                 {shopData && Object.entries(shopData).map(([category, items]) => (
                   <section key={category}>
-                    <h3 className="text-3xl font-extrabold capitalize text-black dark:text-white mb-6 tracking-tight border-b border-zinc-200 dark:border-zinc-800 pb-2">
-                      {category}
-                    </h3>
+                    <div className="flex items-end gap-4 mb-8 border-b border-zinc-200 dark:border-zinc-800 pb-4 transition-colors">
+                      <h3 className="text-4xl font-serif italic capitalize text-zinc-950 dark:text-white tracking-tight">
+                        {category}
+                      </h3>
+                      <span className="text-zinc-500 text-sm mb-1">{items.length} Items</span>
+                    </div>
+
                     {items && items.length > 0 ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                         {items.map((item, idx) => (
-                          <div key={idx} className="group relative bg-white dark:bg-zinc-900 rounded-2xl p-4 shadow-sm hover:shadow-xl transition-all border border-zinc-100 dark:border-zinc-800 flex flex-col">
-                            <div className="aspect-square bg-zinc-100 dark:bg-zinc-800 rounded-xl mb-4 overflow-hidden relative">
-                               {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={item.image || "https://images.unsplash.com/photo-1445205170230-053b83016050?w=300&h=300"} alt={item.title} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
+                          <div key={idx} className="group relative bg-white dark:bg-zinc-950 rounded-[1.5rem] p-5 hover:border-primary/40 transition-all duration-500 border border-zinc-200 dark:border-zinc-800 flex flex-col luxury-card shadow-sm hover:shadow-xl dark:shadow-none">
+                            <div className="aspect-[3/4] bg-zinc-50 dark:bg-zinc-900 rounded-xl mb-6 overflow-hidden relative transition-colors">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={item.image || "https://images.unsplash.com/photo-1445205170230-053b83016050?w=300&h=400&fit=crop"} alt={item.title} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-700 ease-out saturate-50 group-hover:saturate-100" />
                             </div>
-                            <h4 className="font-semibold text-lg line-clamp-2 leading-tight text-black dark:text-white">{item.title}</h4>
-                            <div className="mt-auto pt-4 flex items-center justify-between">
-                              <span className="font-bold text-xl text-green-600 dark:text-green-400">{item.price}</span>
-                              <Link href={item.url} target="_blank" className="bg-black text-white dark:bg-white dark:text-black rounded-full p-2 hover:scale-105 transition-transform">
-                                <ExternalLink size={18} />
-                              </Link>
+
+                            <div className="flex flex-col flex-1">
+                              <span className="text-primary text-xs font-bold tracking-widest uppercase mb-2">Designer</span>
+                              <h4 className="font-light text-xl line-clamp-2 leading-tight text-zinc-900 dark:text-white mb-4 transition-colors">{item.title}</h4>
+
+                              <div className="mt-auto pt-4 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800 transition-colors">
+                                <span className="font-serif text-2xl text-zinc-900 dark:text-white transition-colors">{item.price}</span>
+                                <Link href={item.url} target="_blank" className="flex items-center gap-2 bg-transparent border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-full px-4 py-2 hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-black hover:border-zinc-900 dark:hover:border-white transition-all duration-300 text-sm font-semibold">
+                                  View <ExternalLink size={14} />
+                                </Link>
+                              </div>
                             </div>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-zinc-500">No pieces found matching this category.</p>
+                      <p className="text-zinc-500 font-light italic">No archival pieces found for this category.</p>
                     )}
                   </section>
                 ))}
@@ -127,7 +142,7 @@ function ShopContent() {
 
 export default function ShopPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-black"><Loader2 className="animate-spin w-8 h-8" /></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="animate-spin w-8 h-8 text-primary" /></div>}>
       <ShopContent />
     </Suspense>
   );
