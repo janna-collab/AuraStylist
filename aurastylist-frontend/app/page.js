@@ -49,11 +49,11 @@ export default function Home() {
           
           {isAuthOpen && (
             <div className="absolute right-0 mt-3 w-64 rounded-2xl bg-white dark:bg-black/50 backdrop-blur-xl p-2 flex flex-col gap-1 animate-in slide-in-from-top-2 z-50 border border-zinc-200 dark:border-zinc-800 shadow-2xl">
-              <Link href="/getting-started" className="p-3 bg-zinc-50 dark:bg-zinc-900/50 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors flex flex-col group">
+              <Link href="/signup" className="p-3 bg-zinc-50 dark:bg-zinc-900/50 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors flex flex-col group">
                  <span className="text-black dark:text-white font-bold text-sm">Become a Client</span>
                  <span className="text-[#D4AF37] text-xs mt-1 font-medium group-hover:translate-x-1 transition-transform">Create an account &rarr;</span>
               </Link>
-              <Link href="/getting-started" className="p-3 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl transition-colors flex flex-col group mt-1 border-t border-zinc-200 dark:border-zinc-800 pt-3">
+              <Link href="/login" className="p-3 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl transition-colors flex flex-col group mt-1 border-t border-zinc-200 dark:border-zinc-800 pt-3">
                  <span className="text-zinc-600 dark:text-[#E5D3B3]/90 font-bold text-sm">Returning Client?</span>
                  <span className="text-zinc-400 dark:text-[#E5D3B3]/60 text-xs mt-1 font-medium group-hover:text-black dark:group-hover:text-white transition-colors">Sign in here</span>
               </Link>
@@ -94,12 +94,23 @@ export default function Home() {
               >
                 Explore Gallery
               </Link>
-              <Link 
-                href="/style-request" 
-                className="group flex items-center justify-center gap-3 h-14 px-10 rounded-full bg-transparent border-2 border-[#D4AF37]/50 text-zinc-800 dark:text-[#E5D3B3] text-lg font-semibold hover:border-[#D4AF37] hover:bg-[#D4AF37]/10 hover:text-black dark:hover:text-white transition-all duration-500 w-full sm:w-auto"
+              <button 
+                onClick={() => {
+                  const user = localStorage.getItem("aura_user");
+                  const profile = localStorage.getItem("aura_profile");
+                  
+                  if (!user) {
+                    window.location.href = "/signup";
+                  } else if (!profile) {
+                    window.location.href = "/getting-started";
+                  } else {
+                    window.location.href = "/style-request";
+                  }
+                }}
+                className="group flex items-center justify-center gap-3 h-14 px-10 rounded-full bg-transparent border-2 border-[#D4AF37]/50 text-zinc-800 dark:text-[#E5D3B3] text-lg font-semibold hover:border-[#D4AF37] hover:bg-[#D4AF37]/10 hover:text-black dark:hover:text-white transition-all duration-500 w-full sm:w-auto cursor-pointer"
               >
                 Get Styled <ArrowRight className="group-hover:translate-x-1 transition-transform text-[#D4AF37]" />
-              </Link>
+              </button>
             </div>
           </div>
 

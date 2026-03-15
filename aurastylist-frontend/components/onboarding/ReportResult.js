@@ -86,7 +86,10 @@ export default function ReportResult({ profileInfo, onFinish }) {
 
       <div className="mt-10 flex justify-center">
         <button
-          onClick={onFinish}
+          onClick={() => {
+            localStorage.setItem("aura_profile", JSON.stringify(report));
+            onFinish();
+          }}
           className="group flex items-center gap-2 rounded-full bg-black px-8 py-4 font-semibold text-white shadow-xl shadow-black/20 transition-all hover:-translate-y-1 hover:bg-zinc-800 hover:shadow-2xl dark:bg-white dark:text-black dark:shadow-white/10 dark:hover:bg-zinc-200"
         >
           Go to My Dashboard
