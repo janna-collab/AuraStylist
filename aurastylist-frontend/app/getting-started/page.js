@@ -6,6 +6,7 @@ import Image from "next/image";
 import PhotoUpload from "@/components/onboarding/PhotoUpload";
 import ManualInputsForm from "@/components/onboarding/ManualInputsForm";
 import ReportResult from "@/components/onboarding/ReportResult";
+import { API_BASE_URL } from "@/lib/endpoints";
 
 export default function GettingStartedPage() {
   const router = useRouter();
@@ -39,7 +40,7 @@ export default function GettingStartedPage() {
       formData.append("preferredFit", inputs.preferredFit);
 
       // Call FastAPI backend (assuming it's running on port 8000)
-      const res = await fetch("http://localhost:8000/api/profile/generate", {
+      const res = await fetch(`${API_BASE_URL}/api/profile/generate`, {
         method: "POST",
         body: formData,
       });
@@ -49,32 +50,14 @@ export default function GettingStartedPage() {
         setOnboardingData((prev) => ({ ...prev, reportData: data }));
       } else {
         console.error("Failed to generate profile");
-        // For development/mock purposes, mock the response if backend fails
-        mockSuccessfulResponse();
+        alert("Our AI stylists are currently at an event. Please try again in a moment.");
       }
     } catch (error) {
       console.error("API Error:", error);
-      mockSuccessfulResponse();
+      alert("Encountered a connection issue. Please check your internet and try again.");
     } finally {
       setIsGenerating(false);
     }
-  };
-
-  const mockSuccessfulResponse = () => {
-    setTimeout(() => {
-      setOnboardingData((prev) => ({
-        ...prev,
-        reportData: {
-          skinUndertone: "Warm Olive",
-          bodyProportions: "Inverted Triangle",
-          faceShape: "Square",
-          bestColors: ["Emerald Green", "Terracotta", "Navy Blue", "Mustard"],
-          flatteringCuts: ["V-necklines", "A-line skirts", "Wide-leg trousers"],
-          suitableHairstyles: ["Soft layers", "Side-swept bangs", "Textured bob"]
-        }
-      }));
-      setIsGenerating(false);
-    }, 2500); // Fake delay
   };
 
   return (

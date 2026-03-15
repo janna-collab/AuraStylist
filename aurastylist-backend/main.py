@@ -16,11 +16,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(analyze.router, prefix="/analyze", tags=["Analyze"])
-app.include_router(style.router, prefix="/style", tags=["Style"])
-app.include_router(gallery.router, prefix="/gallery", tags=["Gallery"])
+app.include_router(analyze.router, prefix="/api/analyze", tags=["Analyze"])
+app.include_router(style.router, prefix="/api/style", tags=["Style"])
+app.include_router(gallery.router, prefix="/api/gallery", tags=["Gallery"])
 app.include_router(shop.router, prefix="/api/shop", tags=["Shop"])
-app.include_router(chat.router, prefix="/chat", tags=["Chat"])
+app.include_router(chat.router, prefix="/api/chat", tags=["Chat"])
 app.include_router(profile.router, prefix="/api/profile", tags=["Profile"])
 app.include_router(style_request.router, prefix="/api/style/request", tags=["Style Request"])
 

@@ -8,7 +8,7 @@ import { Sparkles, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useUserProfileStore } from "@/store/userProfile";
-import { generateStyleReportAPI, generateOutfitsAPI } from "@/lib/api";
+import { generateStyleReportAPI, generateOutfitsAPI, createStyleRequestAPI } from "@/lib/api";
 import { CheckCircle2, Info, Loader2, Image as ImageIcon } from "lucide-react";
 
 export default function StyleRequestPage() {
@@ -24,64 +24,44 @@ export default function StyleRequestPage() {
     setIsSubmitting(true);
     
     try {
-      let analysisData = bodyAnalysis?.analysis || bodyAnalysis?.message || "Standard Proportional Analysis";
-      let profile = bodyAnalysis;
+      // Prepare the request object for our new API utility
+      const requestParams = {
+        target_type: activeTab,
+        venue: data.venue,
+        aesthetic: data.aesthetic,
+        gender: activeTab === "someone" ? data.gender : undefined,
+        height: activeTab === "myself" ? height : data.height,
+        dress_type: data.dressType,
+        price_range: data.priceRange,
+        reference_image: data.referenceImage, // for myself
+        target_image: data.targetImage, // for someone
+      };
 
-      if (activeTab === "someone") {
-        // First Stage for Someone Else: Create Request & Get Target Profile
-        const formData = new FormData();
-        formData.append("target_type", "someone");
-        formData.append("gender", data.gender);
-        formData.append("height", data.height);
-        formData.append("venue", data.venue);
-        formData.append("aesthetic", data.aesthetic);
-        if (data.targetImage) formData.append("target_image", data.targetImage);
-
-        const res = await fetch("http://localhost:8000/api/style/request", {
-          method: "POST",
-          body: formData,
-        });
+      const result = await createStyleRequestAPI(requestParams);
+      
+      if (result?.request_id) {
+        // Map the standardized result to our state
+        const profile = {
+            bestColors: result.palette || [],
+            flatteringCuts: typeof result.cuts === 'string' ? result.cuts.split(', ') : (result.cuts || [])
+        };
         
-        if (res.ok) {
-          const result = await res.json();
-          analysisData = JSON.stringify(result.target_profile);
-          profile = result.target_profile;
-        } else {
-          throw new Error("Failed to analyze target person");
-        }
+        setLocalReport(profile);
+        setStyleReport(profile);
+        
+        const generatedOutfits = result.outfits || [];
+        setLocalOutfits(generatedOutfits);
+        setStyleOutfits(generatedOutfits);
+
+        setShowResults(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        throw new Error("Invalid response from server: missing request_id");
       }
-
-      // 1. Generate Style Report
-      const reportRes = await generateStyleReportAPI(
-        analysisData,
-        activeTab === "myself" ? height : data.height,
-        activeTab === "myself" ? shoeSize : "Standard",
-        activeTab === "myself" ? preferredFit : "Tailored"
-      );
-      
-      const generatedReport = reportRes.report || reportRes;
-      setLocalReport(generatedReport);
-      setStyleReport(generatedReport);
-
-      // 2. Generate Outfits
-      const outfitRes = await generateOutfitsAPI(
-        data.aesthetic,
-        data.venue,
-        activeTab === "myself" ? data.dressType : "Fashionable",
-        activeTab === "myself" ? data.priceRange : "$$",
-        profile
-      );
-      
-      const generatedOutfits = outfitRes.recommendation ? [outfitRes] : (Array.isArray(outfitRes) ? outfitRes : []);
-      setLocalOutfits(generatedOutfits);
-      setStyleOutfits(generatedOutfits);
-
-      setShowResults(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (error) {
       console.error("Styling error:", error);
-      alert("Encountered an error while curating your style. Please try again.");
+      alert("Encountered an error while curating your style. Please ensure all fields are filled and a photo is uploaded if required.");
     } finally {
       setIsSubmitting(false);
     }
@@ -169,7 +149,7 @@ export default function StyleRequestPage() {
                             <div>
                               <p className="text-[10px] font-bold text-[#D4AF37] uppercase tracking-widest mb-1">Ensemble {idx + 1}</p>
                               <h4 className="text-lg font-bold text-zinc-900 dark:text-white leading-tight">
-                                {outfit.recommendation?.split('.')[0] || "Custom Curation"}
+                                {outfit.title}
                               </h4>
                             </div>
                             <div className="h-10 w-10 flex items-center justify-center rounded-full bg-zinc-50 dark:bg-zinc-800 text-zinc-400 group-hover:bg-[#D4AF37]/10 group-hover:text-[#D4AF37] transition-colors">
@@ -177,10 +157,18 @@ export default function StyleRequestPage() {
                             </div>
                           </div>
                           <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6 leading-relaxed">
-                            {outfit.recommendation}
+                            {outfit.description}
                           </p>
                           <button 
-                            onClick={() => router.push(`/gallery?request_id=req_${Date.now()}`)}
+                            onClick={() => {
+                              const rid = outfit.request_id;
+                              if (rid) {
+                                router.push(`/gallery?request_id=${rid}`);
+                              } else {
+                                console.error("Missing request_id for outfit:", outfit);
+                                alert("Something went wrong. Please try generating the style again.");
+                              }
+                            }}
                             className="w-full flex items-center justify-center gap-2 rounded-xl bg-black dark:bg-white text-white dark:text-black py-3.5 text-sm font-bold shadow-lg hover:scale-[1.02] transition-all"
                           >
                             <Sparkles size={16} />

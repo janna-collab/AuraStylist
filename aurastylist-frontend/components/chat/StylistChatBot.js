@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { MessageSquare, X, Send, Image as ImageIcon, Mic, Loader2 } from "lucide-react";
+import { API_BASE_URL } from "@/lib/endpoints";
 
 export default function StylistChatBot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,7 +34,7 @@ export default function StylistChatBot() {
     setIsTyping(true);
 
     try {
-      const res = await fetch("http://localhost:8000/api/chat/message", {
+      const res = await fetch(`${API_BASE_URL}/api/chat/message`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text })

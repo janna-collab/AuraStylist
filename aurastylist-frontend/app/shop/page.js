@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft, ShoppingBag, ExternalLink, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { API_BASE_URL } from "@/lib/endpoints";
 
 const mockShopData = {
   top: [
@@ -28,7 +29,7 @@ function ShopContent() {
     // Call the backend search endpoint
     const fetchShoppingData = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/shop/search", {
+        const res = await fetch(`${API_BASE_URL}/api/shop/search`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

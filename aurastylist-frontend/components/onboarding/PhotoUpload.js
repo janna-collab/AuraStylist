@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { UploadCloud, CheckCircle2, Loader2 } from "lucide-react";
 import { useUserProfileStore } from "@/store/userProfile";
+import { API_BASE_URL } from "@/lib/endpoints";
 
 export default function PhotoUpload({ onImageSelect, onNext }) {
   const [dragActive, setDragActive] = useState(false);
@@ -129,7 +130,7 @@ export default function PhotoUpload({ onImageSelect, onNext }) {
                   const formData = new FormData();
                   formData.append("image", selectedFile);
                   
-                  const res = await fetch("http://localhost:8000/api/analyze/body", {
+                  const res = await fetch(`${API_BASE_URL}/api/analyze/body`, {
                     method: "POST",
                     body: formData,
                   });

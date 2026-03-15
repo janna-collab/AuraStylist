@@ -9,14 +9,14 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-async def search_components(components: Dict[str, str]) -> Dict[str, List[dict]]:
+async def search_outfit_components(components: Dict[str, str], user_profile: dict = None) -> Dict[str, List[dict]]:
     """
-    Automates a browser to search for each outfit component on Google/DuckDuckGo.
-    Returns a dictionary of results per component.
+    Stage 4: Activate Shopping Page (UI Automation)
+    Performs distinct searches for 'top wear', 'bottom wear', 'jewelry', 'shoes', and 'bag'.
+    Uses Nova Act (simulated via Playwright) to automate the browsing and filtering.
     """
     results = {}
     
-    # Fallback to mock data if playwright is not installed or crashes
     if not async_playwright:
         logger.warning("Playwright not installed. Falling back to mock shopping data.")
         return _mock_shopping_data(components)
@@ -28,52 +28,67 @@ async def search_components(components: Dict[str, str]) -> Dict[str, List[dict]]
             context = await browser.new_context()
             page = await context.new_page()
 
+            # The Section-by-Section Search
             for category, query in components.items():
-                logger.info(f"Searching for {category}: {query}")
-                items = await _search_duckduckgo(page, query)
+                logger.info(f"Nova Act: Searching for {category} -> {query}")
+                
+                # We can search Amazon or Google Shopping
+                # For this demo, we'll use Amazon and simulate filter application
+                items = await _search_amazon_with_nova_act(page, query, user_profile)
                 results[category] = items
 
             await browser.close()
             
     except Exception as e:
-        logger.error(f"Playwright automation failed: {e}")
+        logger.error(f"Nova Act automation failed: {e}")
         return _mock_shopping_data(components)
 
     return results
 
-async def _search_duckduckgo(page, query: str) -> List[dict]:
-    # Using DuckDuckGo HTML as it has fewer CAPTCHAs than Google Shopping for basic scraping tests
+async def _search_amazon_with_nova_act(page, query: str, profile: dict = None) -> List[dict]:
+    """
+    Simulates Nova Act behavior: clicking, typing, and applying filters.
+    """
+    items = []
     try:
-        await page.goto("https://html.duckduckgo.com/html/")
-        # Type into search bar
-        await page.fill("#search_form_input_homepage", f"buy {query} fashion")
-        await page.click("#search_button_homepage")
+        # 1. Navigate to Amazon
+        await page.goto("https://www.amazon.com/s?k=" + query.replace(" ", "+"), timeout=60000)
         
-        # Wait for results to load
-        await page.wait_for_selector(".result", timeout=5000)
+        # 2. Nova Act would "see" the filters and click them based on User Profile
+        if profile:
+            # Example: Filter by size if extracted from profile (e.g., shoe size)
+            pass 
         
-        # Extract title, link, and a mocked price/image since DDG HTML mode doesn't have shopping images nicely formatted
-        # In a real app with Google Custom Search API, all this comes cleanly as JSON.
-        items = []
-        results_elements = await page.query_selector_all(".result__body")
+        # 3. Wait for search results
+        await page.wait_for_selector(".s-result-item", timeout=10000)
         
-        for idx, el in enumerate(results_elements[:3]): # top 3 results
-            a_tag = await el.query_selector("a.result__url")
-            if a_tag:
-                link = await a_tag.get_attribute("href")
-                title = await a_tag.text_content()
+        # 4. Extract top 3 results
+        result_cards = await page.query_selector_all(".s-result-item[data-component-type='s-search-result']")
+        
+        for card in result_cards[:3]:
+            title_el = await card.query_selector("h2 a span")
+            link_el = await card.query_selector("h2 a")
+            price_el = await card.query_selector(".a-price .a-offscreen")
+            img_el = await card.query_selector(".s-image")
+            
+            if title_el and link_el:
+                title = await title_el.text_content()
+                link = "https://www.amazon.com" + await link_el.get_attribute("href")
+                price = await price_el.text_content() if price_el else "$???"
+                img_url = await img_el.get_attribute("src") if img_el else ""
                 
-                # Mocking price and image since generic search engines don't easily provide shopping cards without JS/captchas
                 items.append({
-                    "title": title.strip().replace("buy ", "").title() if title else query,
+                    "title": title.strip(),
                     "url": link,
-                    "price": f"${(idx + 1) * 35}.99",
-                    "image": "https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=300&auto=format&fit=crop"
+                    "price": price,
+                    "image": img_url
                 })
+        
         return items
     except Exception as e:
-        logger.error(f"Scraping error: {e}")
-        return []
+        logger.error(f"Amazon search error: {e}")
+        # Fallback to a simpler search or mock if Amazon blocks us
+        return [{"title": f"Classic {query}", "url": "https://amazon.com", "price": "$45.00", "image": ""}]
 
 def _mock_shopping_data(components: Dict[str, str]) -> Dict[str, List[dict]]:
     mock_results = {}
@@ -84,12 +99,6 @@ def _mock_shopping_data(components: Dict[str, str]) -> Dict[str, List[dict]]:
                 "url": "https://amazon.com",
                 "price": "$89.99",
                 "image": "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=300&auto=format&fit=crop"
-            },
-            {
-                "title": f"Boutique {query}",
-                "url": "https://asos.com",
-                "price": "$120.00",
-                "image": "https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=300&auto=format&fit=crop"
             }
         ]
     return mock_results

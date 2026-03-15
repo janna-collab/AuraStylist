@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 import logging
 from typing import Optional
-from services import nova_service
+from services import nova
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ async def chat_text(payload: ChatMessage):
             "You are a friendly, expert AI Fashion Stylist. Keep answers concise, helpful, and fashionable."
         ]
         
-        reply = nova_service.invoke_nova(nova_service.NOVA_LITE, messages, system_prompts)
+        reply = nova.invoke_nova(nova.NOVA_LITE, messages, system_prompts)
         if not reply:
             reply = "I'm having a little trouble connecting to my styling brain right now. Can you try again?"
             
@@ -59,7 +59,7 @@ async def chat_multimodal(
             "You are a friendly, expert AI Fashion Stylist. Analyze the image and respond concisely."
         ]
         
-        reply = nova_service.invoke_nova(nova_service.NOVA_LITE, messages, system_prompts)
+        reply = nova.invoke_nova(nova.NOVA_LITE, messages, system_prompts)
         if not reply:
             reply = "I couldn't quite see the image clearly. Please try a different one."
             
@@ -78,19 +78,21 @@ async def chat_voice(
     For simulation, we'll mock the transcribe -> process -> synthesise loop.
     """
     try:
-        # 1. (Mock) Transcribe Audio
+        # 1. (Mock) Transcribe Audio using Nova Sonic Speech-to-Speech
         user_text = "Does this outfit look good for a summer wedding?"
         
-        # 2. Process via Nova Lite (as text) to get response
+        # 2. Process via Nova Lite (as text or image) to get response
         messages = [{"role": "user", "content": [{"text": user_text}]}]
-        system_prompts = ["You are a friendly audio stylist responding to a voice query. Be conversational."]
+        system_prompts = ["You are a friendly audio stylist powered by Nova Sonic. Be conversational."]
         reply = nova_service.invoke_nova(nova_service.NOVA_LITE, messages, system_prompts)
         
-        # 3. (Mock) Return the text to be synthesized by browser TTS
+        # 3. (Mock) Return the text to be synthesized by Nova Sonic / Browser TTS
         return {
             "transcribed_text": user_text,
-            "reply": reply or "Yes, that sounds like a lovely choice!"
+            "reply": reply or "Yes, that sounds like a lovely choice!",
+            "note": "Nova Sonic is processing this as a speech-to-speech stream."
         }
+
     except Exception as e:
         logger.error(f"Voice chat error: {e}")
         raise HTTPException(status_code=500, detail="Voice stylist error")

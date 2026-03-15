@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import logging
-from services import nova_service, shopping_agent
+from services import nova, shopping_agent
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ async def search_outfit_components(request: ShopRequest):
     """
     try:
         # 1. Parse into components using Nova Lite
-        components = nova_service.extract_outfit_components(request.outfit_description)
+        components = nova.extract_outfit_components(request.outfit_description)
         if not components:
             logger.warning("Nova failed to extract components, using fallback")
             components = {
@@ -31,8 +31,9 @@ async def search_outfit_components(request: ShopRequest):
             
         logger.info(f"Extracted components: {components}")
         
-        # 2. Scrape/Search for each component using Playwright
-        results = await shopping_agent.search_components(components)
+        # 2. Scrape/Search for each component using Playwright (simulating Nova Act)
+        results = await shopping_agent.search_outfit_components(components)
+
         
         return {
             "status": "success",

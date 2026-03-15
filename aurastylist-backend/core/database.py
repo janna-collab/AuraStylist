@@ -29,13 +29,23 @@ def get_db():
 def save_user_profile(user_id: str, profile_data: dict):
     if db is not None:
         try:
-            return db.profiles.update_one(
+            db.profiles.update_one(
                 {"user_id": user_id},
                 {"$set": profile_data},
                 upsert=True
             )
+            return db.profiles.find_one({"user_id": user_id})
         except Exception as e:
             logger.error(f"Error saving profile: {e}")
+            return None
+    return None
+
+def get_user_profile(user_id: str):
+    if db is not None:
+        try:
+            return db.profiles.find_one({"user_id": user_id})
+        except Exception as e:
+            logger.error(f"Error fetching profile: {e}")
             return None
     return None
 
@@ -62,5 +72,20 @@ def save_style_request(user_id: str, request_data: dict):
             return str(result.inserted_id)
         except Exception as e:
             logger.error(f"Error saving style request: {e}")
+            return None
+    return None
+
+
+def get_style_request(request_id: str) -> dict:
+    if db is not None:
+        try:
+            from bson.objectid import ObjectId
+            if not ObjectId.is_valid(request_id):
+                logger.warning(f"Invalid ObjectId format: {request_id}")
+                return None
+            request_doc = db.style_requests.find_one({"_id": ObjectId(request_id)})
+            return request_doc
+        except Exception as e:
+            logger.error(f"Error fetching style request {request_id}: {e}")
             return None
     return None
