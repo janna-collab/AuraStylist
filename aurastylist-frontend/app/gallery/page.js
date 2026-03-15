@@ -8,40 +8,35 @@ import OutfitCard from "@/components/gallery/OutfitCard";
 import { ThemeToggle } from "@/components/theme-toggle";
 import NavbarLogo from "@/components/NavbarLogo";
 
+import { ENDPOINTS } from "@/lib/endpoints";
+
 const CATEGORIES = ["All", "Casual", "Formal", "Streetwear", "Party"];
 
 function GalleryContent() {
   const searchParams = useSearchParams();
-  const request_id = searchParams.get("request_id") || "demo_request_123";
+  const request_id = searchParams.get("request_id");
   const router = useRouter();
 
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [pollCount, setPollCount] = useState(0);
-  const [activeCategory, setActiveCategory] = useState("All");
-
-  // Mock loader fallback if backend is offline
-  const mockLoad = () => {
-    setTimeout(() => {
-      setImages([
-        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop", // Fashion 1
-        "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1000&auto=format&fit=crop", // Fashion 2
-        "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1000&auto=format&fit=crop", // Fashion 3
-        "https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=1000&auto=format&fit=crop",  // Fashion 4
-        "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=1000&auto=format&fit=crop"  // Fashion 5
-      ]);
-      setLoading(false);
-    }, 4000);
-  };
 
   // Poll exactly as planned
   useEffect(() => {
+    if (!request_id || request_id === "demo_request_123" || request_id === "new_req") {
+       setLoading(false);
+       setError("No valid request ID found. Please submit a style request first.");
+       return;
+    }
+
     let interval;
     
     const fetchImages = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/api/gallery/generate/${request_id}`);
+        const res = await fetch(`${ENDPOINTS.GALLERY}?request_id=${request_id}`);
         if (res.ok) {
           const data = await res.json();
           if (data.status === "completed") {
@@ -51,14 +46,20 @@ function GalleryContent() {
           } else if (data.status === "processing") {
             // Keep polling
             setPollCount((prev) => prev + 1);
+          } else if (data.status === "failed") {
+            setError("Generation failed. Please try again.");
+            setLoading(false);
+            clearInterval(interval);
           }
         } else {
-          mockLoad();
+          setError("Server error (Request ID may be invalid).");
+          setLoading(false);
           clearInterval(interval);
         }
       } catch (error) {
         console.error("API error", error);
-        mockLoad();
+        setError("Connection error. Is the backend running?");
+        setLoading(false);
         clearInterval(interval);
       }
     };
@@ -78,10 +79,10 @@ function GalleryContent() {
 
 
   const regenerateImage = async (index) => {
-    // In a real app we would call /regenerate
-    const newImages = [...images];
-    newImages[index] = "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1000&auto=format&fit=crop"; // Different dummy
-    setImages(newImages);
+    // Trigger a fresh generation for the entire set
+    setLoading(true);
+    setImages([]);
+    setPollCount(0);
   };
 
   return (
@@ -148,6 +149,26 @@ function GalleryContent() {
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className={`w-full rounded-[2rem] bg-zinc-100 dark:bg-zinc-900 animate-pulse luxury-card ${i % 2 === 0 ? "h-[400px]" : "h-[600px]"}`} />
             ))}
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-20 bg-zinc-50 dark:bg-zinc-900 rounded-[3rem] border border-zinc-200 dark:border-zinc-800">
+            <p className="text-zinc-600 dark:text-zinc-400 mb-6">{error}</p>
+            <button 
+              onClick={() => router.push("/style-request")}
+              className="px-8 py-3 bg-black dark:bg-white text-white dark:text-black rounded-full font-bold"
+            >
+              Back to Dashboard
+            </button>
+          </div>
+        ) : images.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 bg-zinc-50 dark:bg-zinc-900 rounded-[3rem] border border-zinc-200 dark:border-zinc-800">
+             <p className="text-zinc-600 dark:text-zinc-400 mb-6">No generated images yet. Please submit a style request.</p>
+             <button 
+              onClick={() => router.push("/style-request")}
+              className="px-8 py-3 border border-[#D4AF37] text-[#D4AF37] rounded-full font-bold"
+            >
+              Start New Request
+            </button>
           </div>
         ) : (
           <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">

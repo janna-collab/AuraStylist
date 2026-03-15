@@ -7,6 +7,7 @@ import PhotoUpload from "@/components/onboarding/PhotoUpload";
 import ManualInputsForm from "@/components/onboarding/ManualInputsForm";
 import ReportResult from "@/components/onboarding/ReportResult";
 import NavbarLogo from "@/components/NavbarLogo";
+import { API_BASE_URL } from "@/lib/endpoints";
 
 export default function GettingStartedPage() {
   const router = useRouter();
@@ -52,7 +53,7 @@ export default function GettingStartedPage() {
       }
 
       // Call FastAPI backend (assuming it's running on port 8000)
-      const res = await fetch("http://localhost:8000/api/profile/generate", {
+      const res = await fetch(`${API_BASE_URL}/api/profile/generate`, {
         method: "POST",
         body: formData,
       });
@@ -80,23 +81,6 @@ export default function GettingStartedPage() {
       // because we only want to stop it if there was an error 
       // or if the process is finished.
     }
-  };
-
-  const mockSuccessfulResponse = () => {
-    setTimeout(() => {
-      setOnboardingData((prev) => ({
-        ...prev,
-        reportData: {
-          skinUndertone: "Warm Olive",
-          bodyProportions: "Inverted Triangle",
-          faceShape: "Square",
-          bestColors: ["Emerald Green", "Terracotta", "Navy Blue", "Mustard"],
-          flatteringCuts: ["V-necklines", "A-line skirts", "Wide-leg trousers"],
-          suitableHairstyles: ["Soft layers", "Side-swept bangs", "Textured bob"]
-        }
-      }));
-      setIsGenerating(false);
-    }, 2500); // Fake delay
   };
 
   return (

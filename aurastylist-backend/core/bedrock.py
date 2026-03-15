@@ -1,5 +1,5 @@
 import boto3
-from core.config import settings
+from .config import settings
 
 def get_bedrock_client():
     return boto3.client(

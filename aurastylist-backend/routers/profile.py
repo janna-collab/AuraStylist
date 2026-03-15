@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from typing import Optional
 import json
 import logging
-from services import nova_service
+from services import nova
 from core import database
 
 logger = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ async def generate_profile(
                 ext = 'jpeg' # default to jpeg if unknown or unsupported by bedrock
                 
             try:
-                analysis = nova_service.analyze_image_lite(image_bytes, image_format=ext)
+                analysis = nova.analyze_image_lite(image_bytes, image_format=ext)
                 if analysis:
                     analysis_data = analysis
             except Exception as e:
@@ -49,7 +49,7 @@ async def generate_profile(
         # Call Nova Pro for the final JSON report
         report = None
         try:
-            report = nova_service.generate_style_report_pro(analysis_data, manual_inputs)
+            report = nova.generate_style_report_pro(analysis_data, manual_inputs)
         except Exception as e:
             logger.error(f"Style report generation failed: {e}")
             

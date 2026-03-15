@@ -8,10 +8,17 @@ import { Sparkles, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import NavbarLogo from "@/components/NavbarLogo";
+import { useUserProfileStore } from "@/store/userProfile";
+import { generateStyleReportAPI, generateOutfitsAPI, createStyleRequestAPI } from "@/lib/api";
+import { CheckCircle2, Info, Loader2, Image as ImageIcon } from "lucide-react";
 
 export default function StyleRequestPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("myself"); // 'myself' or 'someone'
+  const { height, shoeSize, preferredFit, bodyAnalysis, setStyleReport, setStyleOutfits } = useUserProfileStore();
+  const [showResults, setShowResults] = useState(false);
+  const [report, setLocalReport] = useState(null);
+  const [outfits, setLocalOutfits] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleLogout = () => {
@@ -23,52 +30,45 @@ export default function StyleRequestPage() {
   const handleSubmit = async (data) => {
     setIsSubmitting(true);
     
-    // Create FormData for the API call
-    const formData = new FormData();
-    formData.append("target_type", activeTab);
-    
-    if (activeTab === "myself") {
-      formData.append("venue", data.venue);
-      formData.append("aesthetic", data.aesthetic);
-      formData.append("dress_type", data.dressType);
-      formData.append("price_range", data.priceRange);
-      if (data.referenceImage) {
-        formData.append("reference_image", data.referenceImage);
-      }
-    } else {
-      formData.append("gender", data.gender);
-      formData.append("height", data.height);
-      formData.append("venue", data.venue);
-      formData.append("aesthetic", data.aesthetic);
-      if (data.targetImage) {
-        formData.append("target_image", data.targetImage);
-      }
-    }
-
     try {
-      const res = await fetch("http://localhost:8000/api/style/request", {
-        method: "POST",
-        body: formData,
-      });
+      // Prepare the request object for our new API utility
+      const requestParams = {
+        target_type: activeTab,
+        venue: data.venue,
+        aesthetic: data.aesthetic,
+        gender: activeTab === "someone" ? data.gender : undefined,
+        height: activeTab === "myself" ? height : data.height,
+        dress_type: data.dressType,
+        price_range: data.priceRange,
+        reference_image: data.referenceImage, // for myself
+        target_image: data.targetImage, // for someone
+      };
 
-      if (res.ok) {
-        const result = await res.json();
-        console.log("Style Response:", result);
-        // Navigate to the gallery polling view
-        if (result.request_id) {
-          router.push(`/gallery?request_id=${result.request_id}`);
-        } else {
-          alert("Styling request successful, but no request_id returned.");
-        }
+      const result = await createStyleRequestAPI(requestParams);
+      
+      if (result?.request_id) {
+        // Map the standardized result to our state
+        const profile = {
+            bestColors: result.palette || [],
+            flatteringCuts: typeof result.cuts === 'string' ? result.cuts.split(', ') : (result.cuts || [])
+        };
+        
+        setLocalReport(profile);
+        setStyleReport(profile);
+        
+        const generatedOutfits = result.outfits || [];
+        setLocalOutfits(generatedOutfits);
+        setStyleOutfits(generatedOutfits);
+
+        setShowResults(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
-        console.error("Failed to process styling request");
-        alert("Mock: Styling successful. (Backend returned error)");
-        router.push("/gallery?request_id=mock_123");
+        throw new Error("Invalid response from server: missing request_id");
       }
+
     } catch (error) {
-      console.error("API error", error);
-      alert("Mock: Styling successful. (Backend not attached)");
-      router.push("/gallery?request_id=mock_123");
+      console.error("Styling error:", error);
+      alert("Encountered an error while curating your style. Please ensure all fields are filled and a photo is uploaded if required.");
     } finally {
       setIsSubmitting(false);
     }
@@ -113,37 +113,119 @@ export default function StyleRequestPage() {
             </div>
 
             <div className="rounded-[2.5rem] border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2 shadow-2xl dark:shadow-[0_0_50px_rgba(0,0,0,0.5)] transition-all duration-500">
-              {/* Toggle Switch */}
-              <div className="flex rounded-[1.5rem] bg-zinc-50 dark:bg-zinc-900 p-1.5 border border-zinc-200 dark:border-zinc-800 transition-colors duration-500">
-                <button
-                  onClick={() => setActiveTab("myself")}
-                  className={`flex-1 rounded-xl py-4 text-sm font-bold tracking-wide transition-all duration-500 ${
-                    activeTab === "myself"
-                      ? "bg-white dark:bg-[#D4AF37] text-zinc-900 dark:text-black shadow-lg border border-zinc-200 dark:border-[#D4AF37]/50"
-                      : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
-                  }`}
-                >
-                  Personal Styling
-                </button>
-                <button
-                  onClick={() => setActiveTab("someone")}
-                  className={`flex-1 rounded-xl py-4 text-sm font-bold tracking-wide transition-all duration-500 ${
-                    activeTab === "someone"
-                      ? "bg-white dark:bg-[#D4AF37] text-zinc-900 dark:text-black shadow-lg border border-zinc-200 dark:border-[#D4AF37]/50"
-                      : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
-                  }`}
-                >
-                  Style a Client
-                </button>
-              </div>
+              {showResults ? (
+                <div className="p-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                  <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">Curated For You</h2>
+                    <button 
+                      onClick={() => setShowResults(false)}
+                      className="text-sm text-[#D4AF37] font-semibold hover:underline"
+                    >
+                      Start New Request
+                    </button>
+                  </div>
 
-              <div className="p-6 sm:p-8 mt-4 relative">
-                {activeTab === "myself" ? (
-                  <StyleMyselfForm onSubmit={handleSubmit} isLoading={isSubmitting} />
-                ) : (
-                  <StyleSomeoneElseForm onSubmit={handleSubmit} isLoading={isSubmitting} />
-                )}
-              </div>
+                  {/* Style Report Card */}
+                  <div className="mb-8 rounded-3xl bg-zinc-50 dark:bg-zinc-800/50 p-6 border border-zinc-100 dark:border-zinc-700/50">
+                    <div className="flex items-center gap-2 mb-4 text-[#D4AF37]">
+                      <Sparkles size={18} />
+                      <h3 className="text-sm font-bold uppercase tracking-wider">Style Intelligence</h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <p className="text-[10px] text-zinc-400 uppercase tracking-widest mb-1">Recommended Palette</p>
+                        <div className="flex flex-wrap gap-2">
+                          {report?.bestColors?.map(color => (
+                            <span key={color} className="text-xs px-2.5 py-1 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400">
+                              {color}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-zinc-400 uppercase tracking-widest mb-1">Flattering Cuts</p>
+                        <p className="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed font-medium">
+                          {report?.flatteringCuts?.slice(0, 3).join(", ")}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Outfit Recommendation */}
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-bold text-zinc-900 dark:text-white px-2">Outfit Recommendations</h3>
+                    {outfits.map((outfit, idx) => (
+                      <div key={idx} className="group relative overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-[#D4AF37]/50 transition-all duration-500 shadow-sm">
+                        <div className="p-6">
+                          <div className="flex justify-between items-start mb-4">
+                            <div>
+                              <p className="text-[10px] font-bold text-[#D4AF37] uppercase tracking-widest mb-1">Ensemble {idx + 1}</p>
+                              <h4 className="text-lg font-bold text-zinc-900 dark:text-white leading-tight">
+                                {outfit.title}
+                              </h4>
+                            </div>
+                            <div className="h-10 w-10 flex items-center justify-center rounded-full bg-zinc-50 dark:bg-zinc-800 text-zinc-400 group-hover:bg-[#D4AF37]/10 group-hover:text-[#D4AF37] transition-colors">
+                              <ImageIcon size={20} />
+                            </div>
+                          </div>
+                          <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6 leading-relaxed">
+                            {outfit.description}
+                          </p>
+                          <button 
+                            onClick={() => {
+                              const rid = outfit.request_id;
+                              if (rid) {
+                                router.push(`/gallery?request_id=${rid}`);
+                              } else {
+                                console.error("Missing request_id for outfit:", outfit);
+                                alert("Something went wrong. Please try generating the style again.");
+                              }
+                            }}
+                            className="w-full flex items-center justify-center gap-2 rounded-xl bg-black dark:bg-white text-white dark:text-black py-3.5 text-sm font-bold shadow-lg hover:scale-[1.02] transition-all"
+                          >
+                            <Sparkles size={16} />
+                            Virtual Try-On
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Toggle Switch */}
+                  <div className="flex rounded-[1.5rem] bg-zinc-50 dark:bg-zinc-900 p-1.5 border border-zinc-200 dark:border-zinc-800 transition-colors duration-500">
+                    <button
+                      onClick={() => setActiveTab("myself")}
+                      className={`flex-1 rounded-xl py-4 text-sm font-bold tracking-wide transition-all duration-500 ${
+                        activeTab === "myself"
+                          ? "bg-white dark:bg-[#D4AF37] text-zinc-900 dark:text-black shadow-lg border border-zinc-200 dark:border-[#D4AF37]/50"
+                          : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
+                      }`}
+                    >
+                      Personal Styling
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("someone")}
+                      className={`flex-1 rounded-xl py-4 text-sm font-bold tracking-wide transition-all duration-500 ${
+                        activeTab === "someone"
+                          ? "bg-white dark:bg-[#D4AF37] text-zinc-900 dark:text-black shadow-lg border border-zinc-200 dark:border-[#D4AF37]/50"
+                          : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
+                      }`}
+                    >
+                      Style a Client
+                    </button>
+                  </div>
+
+                  <div className="p-6 sm:p-8 mt-4 relative">
+                    {activeTab === "myself" ? (
+                      <StyleMyselfForm onSubmit={handleSubmit} isLoading={isSubmitting} />
+                    ) : (
+                      <StyleSomeoneElseForm onSubmit={handleSubmit} isLoading={isSubmitting} />
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

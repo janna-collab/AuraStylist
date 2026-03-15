@@ -62,3 +62,6 @@ yarl==1.23.0
 zstandard==0.25.0
 pymongo==4.16.0
 playwright==1.42.0
+python-multipart==0.0.22
+pydantic-settings==2.8.1
+
