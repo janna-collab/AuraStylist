@@ -39,6 +39,10 @@ export default function StylistChatBot() {
         body: JSON.stringify({ message: text })
       });
       
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
       const data = await res.json();
       setMessages([...newMessages, { role: "bot", content: data.reply || "I'm having trouble connecting to my stylist brain." }]);
     } catch (err) {

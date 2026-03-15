@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Ruler, Sparkles, Shirt } from "lucide-react";
+import { Ruler, Sparkles, Shirt, Info, CheckCircle2 } from "lucide-react";
+import { useUserProfileStore } from "@/store/userProfile";
 
 export default function ManualInputsForm({ onComplete, onBack }) {
+  const bodyAnalysis = useUserProfileStore(state => state.bodyAnalysis);
   const [formData, setFormData] = useState({
     height: "",
     shoeSize: "",
@@ -29,6 +31,30 @@ export default function ManualInputsForm({ onComplete, onBack }) {
           Tell us about your preferences to refine your personal style report.
         </p>
       </div>
+
+      {/* AI Analysis Preview */}
+      {bodyAnalysis && (
+        <div className="mb-8 overflow-hidden rounded-3xl border border-[#D4AF37]/30 bg-[#D4AF37]/5 p-6 shadow-sm animate-in zoom-in-95 duration-700">
+          <div className="flex items-center gap-2 mb-3 text-[#D4AF37]">
+            <Sparkles size={18} />
+            <h3 className="text-sm font-bold uppercase tracking-wider">AI Analysis Result</h3>
+          </div>
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <p className="text-zinc-700 dark:text-zinc-300 text-sm leading-relaxed italic">
+                "{typeof bodyAnalysis === 'string' ? bodyAnalysis : bodyAnalysis.analysis || bodyAnalysis.message || "Analysis complete"}"
+              </p>
+            </div>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#D4AF37]/20 text-[#D4AF37]">
+              <CheckCircle2 size={20} />
+            </div>
+          </div>
+          <p className="mt-4 text-[10px] text-zinc-400 dark:text-zinc-500 flex items-center gap-1">
+            <Info size={10} />
+            You can refine these details below if needed.
+          </p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid gap-6 sm:grid-cols-2">

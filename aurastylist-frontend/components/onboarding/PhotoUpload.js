@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { UploadCloud, CheckCircle2, Image as ImageIcon } from "lucide-react";
+import { UploadCloud, CheckCircle2, Loader2 } from "lucide-react";
+import { useUserProfileStore } from "@/store/userProfile";
 
 export default function PhotoUpload({ onImageSelect, onNext }) {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  
+  const setBodyAnalysis = useUserProfileStore(state => state.setBodyAnalysis);
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -118,10 +122,42 @@ export default function PhotoUpload({ onImageSelect, onNext }) {
               Choose different photo
             </button>
             <button
-              onClick={onNext}
-              className="flex-1 rounded-xl bg-black px-4 py-3 font-semibold text-white transition-all hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+              onClick={async () => {
+                if (!selectedFile) return;
+                setIsAnalyzing(true);
+                try {
+                  const formData = new FormData();
+                  formData.append("image", selectedFile);
+                  
+                  const res = await fetch("http://localhost:8000/api/analyze/body", {
+                    method: "POST",
+                    body: formData,
+                  });
+                  
+                  if (res.ok) {
+                    const data = await res.json();
+                    setBodyAnalysis(data);
+                  } else {
+                    console.error("Analysis failed:", res.statusText);
+                  }
+                } catch (err) {
+                  console.error("Analysis error:", err);
+                } finally {
+                  setIsAnalyzing(false);
+                  onNext();
+                }
+              }}
+              disabled={isAnalyzing}
+              className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-black px-4 py-3 font-semibold text-white transition-all hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
             >
-              Continue
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                "Continue"
+              )}
             </button>
           </div>
         </div>
