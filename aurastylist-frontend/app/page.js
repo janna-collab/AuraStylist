@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Sparkles, ArrowRight, Camera, Wand2, ShoppingBag, User } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -216,11 +217,12 @@ export default function Home() {
                   <div className="absolute inset-0 bg-black/40 group-hover:opacity-100 transition-opacity flex items-center justify-center opacity-0 group-hover:bg-black/60">
                      <span className="text-white font-serif italic text-xl">Editorial Archive</span>
                   </div>
-              </div>
-           </div>
-        </div>
+               </div>
+            </div>
+         </div>
 
       </main>
+      <Footer />
     </div>
   );
 }
