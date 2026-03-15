@@ -27,15 +27,26 @@ def get_db():
     return db
 
 def save_user_profile(user_id: str, profile_data: dict):
+    if db is None:
+        logger.error("Database connection not initialized")
+        raise Exception("Database connection not initialized")
+    try:
+        result = db.profiles.update_one(
+            {"user_id": user_id},
+            {"$set": profile_data},
+            upsert=True
+        )
+        return result
+    except Exception as e:
+        logger.error(f"Error saving profile: {e}")
+        raise e
+
+def get_user_profile(user_id: str):
     if db is not None:
         try:
-            return db.profiles.update_one(
-                {"user_id": user_id},
-                {"$set": profile_data},
-                upsert=True
-            )
+            return db.profiles.find_one({"user_id": user_id})
         except Exception as e:
-            logger.error(f"Error saving profile: {e}")
+            logger.error(f"Error fetching profile: {e}")
             return None
     return None
 

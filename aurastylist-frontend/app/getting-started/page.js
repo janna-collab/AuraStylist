@@ -6,6 +6,7 @@ import Image from "next/image";
 import PhotoUpload from "@/components/onboarding/PhotoUpload";
 import ManualInputsForm from "@/components/onboarding/ManualInputsForm";
 import ReportResult from "@/components/onboarding/ReportResult";
+import NavbarLogo from "@/components/NavbarLogo";
 
 export default function GettingStartedPage() {
   const router = useRouter();
@@ -16,6 +17,12 @@ export default function GettingStartedPage() {
     manualInputs: null,
     reportData: null,
   });
+
+  const handleLogout = () => {
+    localStorage.removeItem("aura_user");
+    localStorage.removeItem("aura_profile");
+    router.push("/");
+  };
 
   const handleImageSelect = (file) => {
     setOnboardingData((prev) => ({ ...prev, imageFile: file }));
@@ -37,6 +44,12 @@ export default function GettingStartedPage() {
       formData.append("height", inputs.height);
       formData.append("shoeSize", inputs.shoeSize);
       formData.append("preferredFit", inputs.preferredFit);
+      
+      const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
+      if (user.email) {
+        formData.append("userId", user.email);
+        formData.append("name", user.name || "User");
+      }
 
       // Call FastAPI backend (assuming it's running on port 8000)
       const res = await fetch("http://localhost:8000/api/profile/generate", {
@@ -47,16 +60,25 @@ export default function GettingStartedPage() {
       if (res.ok) {
         const data = await res.json();
         setOnboardingData((prev) => ({ ...prev, reportData: data }));
+        // Persist the profile to localStorage so login flow can find it later
+        localStorage.setItem("aura_profile", JSON.stringify(data));
+        setIsGenerating(false);
       } else {
-        console.error("Failed to generate profile");
-        // For development/mock purposes, mock the response if backend fails
-        mockSuccessfulResponse();
+        const errorData = await res.json().catch(() => ({}));
+        console.error("Failed to generate profile:", errorData.detail || res.statusText);
+        alert(`Failed to save your profile: ${errorData.detail || "Server error"}. Please check if the backend is running.`);
+        setIsGenerating(false);
+        setStep(2); // Go back to inputs if it fails
       }
     } catch (error) {
       console.error("API Error:", error);
-      mockSuccessfulResponse();
-    } finally {
+      alert("Could not connect to the backend styling service. Please ensure the backend is running on http://localhost:8000.");
       setIsGenerating(false);
+      setStep(2); // Go back to inputs if it fails
+    } finally {
+      // We don't want to always set isGenerating to false here 
+      // because we only want to stop it if there was an error 
+      // or if the process is finished.
     }
   };
 
@@ -81,12 +103,17 @@ export default function GettingStartedPage() {
     <div className="flex min-h-screen flex-col bg-zinc-50 font-sans dark:bg-black">
       {/* Top Navbar Header */}
       <header className="flex h-20 items-center justify-between px-8 border-b border-zinc-200/50 bg-white/50 backdrop-blur-md dark:border-zinc-800/50 dark:bg-black/50 sticky top-0 z-10">
-        <div className="flex items-center gap-2 font-bold tracking-tight text-xl text-black dark:text-white">
-          <div className="h-4 w-4 rounded-sm bg-black dark:bg-white"></div>
-          AuraStylist
-        </div>
-        <div className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-          Step {step} of 3
+        <NavbarLogo />
+        <div className="flex items-center gap-6">
+          <div className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+            Step {step} of 3
+          </div>
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-2 rounded-full bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 px-6 py-2 text-sm font-bold transition-all hover:scale-105 border border-zinc-200 dark:border-zinc-800"
+          >
+            Logout
+          </button>
         </div>
       </header>
 

@@ -10,15 +10,32 @@ export default function SignupPage() {
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // Mock authentication: simulate delay then redirect
-    setTimeout(() => {
-      // Store a mock user in localStorage
-      localStorage.setItem("aura_user", JSON.stringify({ name: formData.name, email: formData.email }));
+    
+    // Mock authentication: simulate delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const mockUser = { name: formData.name, email: formData.email };
+    localStorage.setItem("aura_user", JSON.stringify(mockUser));
+    
+    try {
+      // Check if this email already has a profile in the backend
+      const res = await fetch(`http://localhost:8000/api/profile/${formData.email}`);
+      if (res.ok) {
+        alert("User already exists. Redirecting to login...");
+        router.push("/login");
+        return;
+      } else {
+        router.push("/getting-started");
+      }
+    } catch (error) {
+      console.error("Signup profile check failed:", error);
       router.push("/getting-started");
-    }, 1000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -7,11 +7,18 @@ import StyleSomeoneElseForm from "@/components/dashboard/StyleSomeoneElseForm";
 import { Sparkles, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
+import NavbarLogo from "@/components/NavbarLogo";
 
 export default function StyleRequestPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("myself"); // 'myself' or 'someone'
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem("aura_user");
+    localStorage.removeItem("aura_profile");
+    router.push("/");
+  };
 
   const handleSubmit = async (data) => {
     setIsSubmitting(true);
@@ -75,12 +82,17 @@ export default function StyleRequestPage() {
           <Link href="/" className="rounded-full p-2.5 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all border border-transparent hover:border-zinc-200 dark:hover:border-zinc-800">
             <ArrowLeft size={20} />
           </Link>
-          <div className="flex items-center gap-3 font-bold tracking-tight text-xl text-zinc-900 dark:text-white">
-            <div className="h-5 w-5 rounded-full bg-[#D4AF37] shadow-[0_0_10px_rgba(212,175,55,0.3)]"></div>
-            Style Dashboard
-          </div>
+          <NavbarLogo />
         </div>
-        <ThemeToggle />
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-2 rounded-full bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 px-6 py-2 text-sm font-bold transition-all hover:scale-105 border border-zinc-200 dark:border-zinc-800"
+          >
+            Logout
+          </button>
+        </div>
       </header>
 
       <main className="flex-1 flex w-full">

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Wand2, Download, Share2, Filter } from "lucide-react";
 import OutfitCard from "@/components/gallery/OutfitCard";
 import { ThemeToggle } from "@/components/theme-toggle";
+import NavbarLogo from "@/components/NavbarLogo";
 
 const CATEGORIES = ["All", "Casual", "Formal", "Streetwear", "Party"];
 
@@ -91,10 +92,7 @@ function GalleryContent() {
           <button onClick={() => router.back()} className="rounded-full p-2.5 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
             <ArrowLeft size={22} />
           </button>
-          <div className="flex flex-col">
-            <span className="text-xs font-semibold text-primary uppercase tracking-widest mb-1">Archive</span>
-            <span className="font-serif italic text-2xl text-zinc-900 dark:text-white">Style Gallery</span>
-          </div>
+          <NavbarLogo />
         </div>
         
         <div className="flex items-center gap-4">

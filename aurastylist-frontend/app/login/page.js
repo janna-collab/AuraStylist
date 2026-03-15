@@ -10,15 +10,37 @@ export default function LoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // Mock authentication: simulate delay then redirect
-    setTimeout(() => {
-      // Store a mock user in localStorage
-      localStorage.setItem("aura_user", JSON.stringify({ name: "Returning User", email: formData.email }));
+    
+    // Mock authentication: simulate delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const mockUser = { name: "Returning User", email: formData.email };
+    localStorage.setItem("aura_user", JSON.stringify(mockUser));
+    
+    try {
+      // Fetch existing profile from backend using the unique email
+      const res = await fetch(`http://localhost:8000/api/profile/${formData.email}`);
+      if (res.ok) {
+        const profileData = await res.json();
+        localStorage.setItem("aura_profile", JSON.stringify(profileData.report || profileData));
+        
+        // Update aura_user with the actual name from the profile
+        const actualName = profileData.inputs?.name || "User";
+        localStorage.setItem("aura_user", JSON.stringify({ name: actualName, email: formData.email }));
+        
+        router.push("/style-request");
+      } else {
+        router.push("/getting-started");
+      }
+    } catch (error) {
+      console.error("Failed to fetch profile:", error);
       router.push("/getting-started");
-    }, 1000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

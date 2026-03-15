@@ -14,10 +14,14 @@ async def generate_profile(
     image: Optional[UploadFile] = File(None),
     height: str = Form(...),
     shoeSize: str = Form(...),
-    preferredFit: str = Form(...)
+    preferredFit: str = Form(...),
+    userId: Optional[str] = Form("user_123"),
+    name: Optional[str] = Form("User")
 ):
     try:
+        user_id = userId
         manual_inputs = {
+            "name": name,
             "height": height,
             "shoeSize": shoeSize,
             "preferredFit": preferredFit
@@ -62,15 +66,43 @@ async def generate_profile(
                 "suitableHairstyles": ["Soft layers", "Side-swept bangs", "Textured bob"]
             }
             
-        # Store in MongoDB (using simple user_id for now as mock auth)
-        user_id = "user_123" 
-        database.save_user_profile(user_id, {
-            "inputs": manual_inputs,
-            "report": report
-        })
+        # Store in MongoDB
+        try:
+            save_result = database.save_user_profile(user_id, {
+                "inputs": manual_inputs,
+                "report": report
+            })
+            if save_result:
+                logger.info(f"Successfully saved profile for user: {user_id}")
+            else:
+                logger.error(f"Save operation returned no result for user: {user_id}")
+                raise HTTPException(status_code=500, detail="Failed to save profile to database")
+        except Exception as e:
+            logger.error(f"Failed to save profile for user {user_id} to database: {e}")
+            raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
         
         return report
 
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"Failed to generate profile: {e}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        logger.error(f"Unexpected error in generating profile: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+@router.get("/{user_id}")
+async def get_profile(user_id: str):
+    logger.info(f"Fetching profile for user: {user_id}")
+    profile = database.get_user_profile(user_id)
+    if not profile:
+        logger.warning(f"Profile not found for user: {user_id}")
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    # Remove MongoDB internal _id for frontend compatibility
+    if "_id" in profile:
+        profile["_id"] = str(profile["_id"])
+        
+    return profile
+
+@router.get("/status/{user_id}")
+async def check_profile_status(user_id: str):
+    profile = database.get_user_profile(user_id)
+    return {"exists": profile is not None}

@@ -38,10 +38,11 @@ const getInitials = (name) => {
   return name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase();
 };
 
-export default function Footer() {
+export default function Footer({ onAuthClick }) {
   return (
     <footer 
-      className="w-full bg-zinc-50 dark:bg-[#0a0a0a] border-t border-black/10 dark:border-[rgba(255,255,255,0.08)] transition-colors duration-500 mt-auto"
+      id="footer"
+      className="w-full bg-zinc-50 dark:bg-[#0a0a0a] border-t border-black/10 dark:border-[rgba(255,255,255,0.08)] transition-colors duration-500 mt-auto scroll-mt-28"
       style={{ fontFamily: '"Inter", "SF Pro Display", system-ui, sans-serif' }}
     >
       <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 py-16 pb-6">
@@ -74,8 +75,22 @@ export default function Footer() {
           <div className="space-y-5">
             <h4 className="text-[14px] font-semibold uppercase tracking-widest text-zinc-900 dark:text-[#e5e5e5]">Platform</h4>
             <ul className="space-y-3 flex flex-col">
-              <li><Link href="/login" className="text-[13px] text-zinc-500 dark:text-[#9ca3af] hover:text-black dark:hover:text-white transition-colors">Client Login</Link></li>
-              <li><Link href="/getting-started" className="text-[13px] text-zinc-500 dark:text-[#9ca3af] hover:text-black dark:hover:text-white transition-colors">Become a Client</Link></li>
+              <li>
+                <button 
+                  onClick={() => onAuthClick ? onAuthClick() : window.location.href='/login'} 
+                  className="text-[13px] text-zinc-500 dark:text-[#9ca3af] hover:text-black dark:hover:text-white transition-colors text-left"
+                >
+                  Client Login
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => onAuthClick ? onAuthClick() : window.location.href='/getting-started'} 
+                  className="text-[13px] text-zinc-500 dark:text-[#9ca3af] hover:text-black dark:hover:text-white transition-colors text-left"
+                >
+                  Become a Client
+                </button>
+              </li>
               <li><span className="text-[13px] text-zinc-500 dark:text-[#9ca3af] cursor-not-allowed hover:text-black dark:hover:text-white transition-colors">Privacy Policy</span></li>
               <li><span className="text-[13px] text-zinc-500 dark:text-[#9ca3af] cursor-not-allowed hover:text-black dark:hover:text-white transition-colors">Terms of Service</span></li>
             </ul>

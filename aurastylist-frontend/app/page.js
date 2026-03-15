@@ -1,16 +1,48 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { Sparkles, ArrowRight, Camera, Wand2, ShoppingBag, User } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Sparkles, ArrowRight, Camera, Wand2, ShoppingBag, User, X } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import Footer from "@/components/Footer";
+import NavbarLogo from "@/components/NavbarLogo";
 
 export default function Home() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("aura_user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("aura_user");
+    localStorage.removeItem("aura_profile");
+    setUser(null);
+    setIsAuthOpen(false);
+  };
+
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsAuthOpen(false);
+      }
+    }
+    if (isAuthOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isAuthOpen]);
 
   return (
-    <div className="flex min-h-screen flex-col relative overflow-hidden bg-gradient-to-b from-[#faf7f2] via-white to-[#faf7f2] dark:from-black dark:via-zinc-950 dark:to-black text-foreground transition-colors duration-500">
+    <div className="flex min-h-screen flex-col relative overflow-x-clip bg-gradient-to-b from-[#faf7f2] via-white to-[#faf7f2] dark:from-black dark:via-zinc-950 dark:to-black text-foreground transition-colors duration-500">
       {/* Dynamic Background Gradients */}
       <div className="absolute top-0 left-0 w-[150%] h-[150%] -translate-x-1/4 -translate-y-1/4 bg-[radial-gradient(circle_at_50%_30%,rgba(212,175,55,0.08),rgba(0,0,0,0)_60%)] pointer-events-none z-0" />
 
@@ -19,20 +51,27 @@ export default function Home() {
         {/* Left Side: Logo & Links */}
         <div className="flex items-center gap-12">
           {/* Logo */}
-          <div className="flex items-center gap-3 text-2xl font-black text-zinc-900 dark:text-white tracking-tighter cursor-pointer group">
-            <div className="p-2.5 rounded-xl bg-gradient-to-tr from-white to-zinc-50 dark:from-zinc-800 dark:to-black border border-zinc-200 dark:border-[#D4AF37]/30 shadow-lg dark:shadow-[0_0_15px_rgba(212,175,55,0.15)] transform group-hover:rotate-6 transition-all duration-300">
-              <Sparkles className="h-5 w-5 text-[#D4AF37]" />
-            </div>
-            <span className="hidden sm:block text-zinc-900 dark:text-white transition-colors duration-500">AuraStylist</span>
-          </div>
+          <NavbarLogo />
           
           {/* Middle Links */}
           <nav className="hidden md:flex items-center gap-8">
-            <Link href="#about" className="text-sm font-semibold text-[#E5D3B3]/70 hover:text-white transition-colors uppercase tracking-widest">
-              Concept
+            <Link 
+              href="#about" 
+              className="text-sm font-semibold text-zinc-600 dark:text-[#E5D3B3]/70 hover:text-black dark:hover:text-white transition-colors uppercase tracking-widest"
+            >
+              About
             </Link>
-            <Link href="#features" className="text-sm font-semibold text-[#E5D3B3]/70 hover:text-white transition-colors uppercase tracking-widest">
+            <Link 
+              href="#features" 
+              className="text-sm font-semibold text-zinc-600 dark:text-[#E5D3B3]/70 hover:text-black dark:hover:text-white transition-colors uppercase tracking-widest"
+            >
               Atelier
+            </Link>
+            <Link 
+              href="#footer" 
+              className="text-sm font-semibold text-zinc-600 dark:text-[#E5D3B3]/70 hover:text-black dark:hover:text-white transition-colors uppercase tracking-widest"
+            >
+              Contact
             </Link>
           </nav>
         </div>
@@ -40,24 +79,51 @@ export default function Home() {
         {/* Right Auth Dropdown */}
         <div className="relative flex items-center gap-4">
           <ThemeToggle />
-          <button 
-            onClick={() => setIsAuthOpen(!isAuthOpen)}
-            className="flex items-center gap-2 rounded-full bg-black text-white dark:bg-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 px-6 py-2 text-sm font-bold transition-all hover:scale-105"
-          >
-            <User size={16} /> Client Login
-          </button>
-          
-          {isAuthOpen && (
-            <div className="absolute right-0 mt-3 w-64 rounded-2xl bg-white dark:bg-black/50 backdrop-blur-xl p-2 flex flex-col gap-1 animate-in slide-in-from-top-2 z-50 border border-zinc-200 dark:border-zinc-800 shadow-2xl">
-              <Link href="/signup" className="p-3 bg-zinc-50 dark:bg-zinc-900/50 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors flex flex-col group">
-                 <span className="text-black dark:text-white font-bold text-sm">Become a Client</span>
-                 <span className="text-[#D4AF37] text-xs mt-1 font-medium group-hover:translate-x-1 transition-transform">Create an account &rarr;</span>
-              </Link>
-              <Link href="/login" className="p-3 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl transition-colors flex flex-col group mt-1 border-t border-zinc-200 dark:border-zinc-800 pt-3">
-                 <span className="text-zinc-600 dark:text-[#E5D3B3]/90 font-bold text-sm">Returning Client?</span>
-                 <span className="text-zinc-400 dark:text-[#E5D3B3]/60 text-xs mt-1 font-medium group-hover:text-black dark:group-hover:text-white transition-colors">Sign in here</span>
-              </Link>
+          {user ? (
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium text-zinc-600 dark:text-[#E5D3B3]/90 hidden sm:block">
+                Welcome, {user.name}
+              </span>
+              <button 
+                onClick={handleLogout}
+                className="flex items-center gap-2 rounded-full bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 px-6 py-2 text-sm font-bold transition-all hover:scale-105"
+              >
+                Logout
+              </button>
             </div>
+          ) : (
+            <>
+              <button 
+                onClick={() => setIsAuthOpen(!isAuthOpen)}
+                className="flex items-center gap-2 rounded-full bg-black text-white dark:bg-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 px-6 py-2 text-sm font-bold transition-all hover:scale-105"
+              >
+                <User size={16} /> Client Login
+              </button>
+              
+              {isAuthOpen && (
+                <div 
+                  ref={dropdownRef}
+                  className="absolute right-0 top-full mt-4 w-64 rounded-2xl bg-white dark:bg-black/80 backdrop-blur-xl p-2 flex flex-col gap-1 animate-in slide-in-from-top-2 z-50 border border-zinc-200 dark:border-zinc-800 shadow-2xl"
+                >
+                  <div className="flex justify-end p-1">
+                    <button 
+                      onClick={() => setIsAuthOpen(false)}
+                      className="p-1.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-white transition-all"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                  <Link href="/signup" onClick={() => setIsAuthOpen(false)} className="p-3 bg-zinc-50 dark:bg-zinc-900/50 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors flex flex-col group">
+                     <span className="text-black dark:text-white font-bold text-sm">Become a Client</span>
+                     <span className="text-[#D4AF37] text-xs mt-1 font-medium group-hover:translate-x-1 transition-transform">Create an account &rarr;</span>
+                  </Link>
+                  <Link href="/login" onClick={() => setIsAuthOpen(false)} className="p-3 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl transition-colors flex flex-col group mt-1 border-t border-zinc-200 dark:border-zinc-800 pt-3">
+                     <span className="text-zinc-600 dark:text-[#E5D3B3]/90 font-bold text-sm">Returning Client?</span>
+                     <span className="text-zinc-400 dark:text-[#E5D3B3]/60 text-xs mt-1 font-medium group-hover:text-black dark:group-hover:text-white transition-colors">Sign in here</span>
+                  </Link>
+                </div>
+              )}
+            </>
           )}
         </div>
       </header>
@@ -66,7 +132,7 @@ export default function Home() {
       <main className="flex-1 flex flex-col items-center justify-center pt-32 p-6 relative z-10 w-full max-w-7xl mx-auto">
         
         {/* Luxury Hero Section */}
-        <div id="about" className="w-full flex flex-col lg:flex-row items-center gap-12 py-16 animate-in fade-in slide-in-from-bottom-12 duration-1000 ease-out relative">
+        <div id="about" className="w-full flex flex-col lg:flex-row items-center gap-12 py-16 animate-in fade-in slide-in-from-bottom-12 duration-1000 ease-out relative scroll-mt-32">
           {/* Subtle radial glow behind hero image */}
           <div className="absolute top-1/2 right-0 w-[800px] h-[800px] -translate-y-1/2 translate-x-1/4 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.12),transparent_60%)] pointer-events-none -z-10" />
           
@@ -128,7 +194,7 @@ export default function Home() {
         </div>
 
         {/* Features Grid */}
-        <div id="features" className="w-full pt-28 pb-24">
+        <div id="features" className="w-full pt-28 pb-24 scroll-mt-32">
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-4xl md:text-5xl font-serif italic text-zinc-900 dark:text-white tracking-tight transition-colors duration-500">The Atelier</h2>
             <p className="text-zinc-600 dark:text-[#E5D3B3]/80 text-lg max-w-2xl mx-auto font-light transition-colors duration-500">Precision tools designed to elevate your personal brand.</p>
@@ -233,7 +299,10 @@ export default function Home() {
          </div>
 
       </main>
-      <Footer />
+      <Footer onAuthClick={() => {
+        setIsAuthOpen(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }} />
     </div>
   );
 }
