@@ -83,7 +83,7 @@ export default function StyleSomeoneElseForm({ onSubmit, isLoading }) {
         )}
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-4 gap-4">
         {/* Gender */}
         <div>
           <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Gender</label>
@@ -94,8 +94,19 @@ export default function StyleSomeoneElseForm({ onSubmit, isLoading }) {
           >
             <option value="Female">Female</option>
             <option value="Male">Male</option>
-            <option value="Other">Other</option>
           </select>
+        </div>
+
+        {/* Age */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Age</label>
+          <input
+            type="number"
+            className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-[#D4AF37] transition-all outline-none shadow-sm"
+            placeholder="Age"
+            value={formData.age || ""}
+            onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+          />
         </div>
 
         {/* Height */}

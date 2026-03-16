@@ -20,10 +20,13 @@ async def chat_text(payload: ChatMessage):
             "You are AuraStylist, a world-class AI Fashion Stylist. "
             "Your responses must be elite, sophisticated, and concise. "
             "Focus on high-end fashion, fabric quality, and timeless style. "
-            "Provide clear, actionable advice that feels like a 'golden liner'—brief yet invaluable."
+            "Provide clear, actionable advice that feels like a 'golden liner'—brief yet invaluable. "
+            "CRITICAL: Do not use ANY markdown formatting (like ** for bolding). Speak in pure conversational text."
         ]
         
         reply = nova.invoke_nova(nova.NOVA_LITE, messages, system_prompts)
+        if reply:
+            reply = reply.replace("**", "")
         if not reply:
             reply = "I am momentarily reflecting on the latest collections. Please share your thoughts again."
             
@@ -64,10 +67,13 @@ async def chat_multimodal(
             "You are AuraStylist, a visual fashion expert. "
             "Analyze the garment provided with precision. "
             "Discuss silhouette, texture, and coordination. "
-            "Keep your expert verdict concise and elegant."
+            "Keep your expert verdict concise and elegant. "
+            "CRITICAL: Do not use ANY markdown formatting (like ** for bolding). Speak in pure conversational text."
         ]
         
         reply = nova.invoke_nova(nova.NOVA_LITE, messages, system_prompts)
+        if reply:
+            reply = reply.replace("**", "")
         if not reply:
             reply = "This piece is intriguing, yet I need a clearer view to give my expert verdict."
             
@@ -89,9 +95,12 @@ async def chat_voice(
         system_prompts = [
             "You are AuraStylist, speaking as a personal couture consultant. "
             "Your tone should be warm, confident, and highly knowledgeable. "
-            "Recommend only the most refined options."
+            "Recommend only the most refined options. "
+            "CRITICAL: Do not use ANY markdown formatting (like ** for bolding). Speak in pure conversational text."
         ]
         reply = nova.invoke_nova(nova.NOVA_LITE, messages, system_prompts)
+        if reply:
+            reply = reply.replace("**", "")
         
         return {
           "transcribed_text": user_text,

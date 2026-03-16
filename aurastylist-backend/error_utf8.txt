@@ -1,0 +1,70 @@
+﻿venv\Scripts\python.exe : Traceback 
+(most recent call last):
+At line:1 char:1
++ venv\Scripts\python.exe -c "from 
+routers import analyze" 2>&1 | Out-F 
+...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpe 
+   cified: (Traceback (most recent   
+  call last)::String) [], RemoteEx   
+ ception
+    + FullyQualifiedErrorId : Native 
+   CommandError
+ 
+  File "<string>", line 1, in 
+<module>
+  File "C:\AuraStylist ag\aurastylist
+-backend\routers\analyze.py", line 
+2, in <module>
+    from services import nova
+  File "C:\AuraStylist ag\aurastylist
+-backend\services\nova\__init__.py", 
+line 1, in <module>
+    from .orchestrator import 
+orchestrator, StyleOrchestrator
+  File "C:\AuraStylist ag\aurastylist
+-backend\services\nova\orchestrator.p
+y", line 3, in <module>
+    from .vision import 
+analyze_style_profile
+  File "C:\AuraStylist ag\aurastylist
+-backend\services\nova\vision.py", 
+line 6, in <module>
+    from .client import 
+bedrock_client
+  File "C:\AuraStylist ag\aurastylist
+-backend\services\nova\client.py", 
+line 9, in <module>
+    from core.config import settings
+  File "C:\AuraStylist ag\aurastylist
+-backend\core\config.py", line 14, 
+in <module>
+    settings = Settings()
+               ^^^^^^^^^^
+  File "C:\AuraStylist ag\aurastylist
+-backend\venv\Lib\site-packages\pydan
+tic_settings\main.py", line 176, in 
+__init__
+    super().__init__(
+  File "C:\AuraStylist ag\aurastylist
+-backend\venv\Lib\site-packages\pydan
+tic\main.py", line 250, in __init__
+    validated_self = self.__pydantic_
+validator__.validate_python(data, 
+self_instance=self)
+                     ^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.Validati
+onError: 1 validation error for 
+Settings
+opensearch_index
+  Extra inputs are not permitted 
+[type=extra_forbidden, 
+input_value='fashion_products', 
+input_type=str]
+    For further information visit htt
+ps://errors.pydantic.dev/2.12/v/extra
+_forbidden

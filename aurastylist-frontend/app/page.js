@@ -154,12 +154,19 @@ export default function Home() {
             </p>
 
             <div className="pt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 w-full">
-              <Link 
-                href="/gallery" 
-                className="group flex items-center justify-center gap-3 h-14 px-10 rounded-full bg-[#D4AF37] text-zinc-900 dark:text-black text-lg font-bold shadow-[0_0_20px_rgba(212,175,55,0.2)] dark:shadow-[0_0_20px_rgba(212,175,55,0.4)] hover:shadow-[0_0_40px_rgba(212,175,55,0.5)] dark:hover:shadow-[0_0_40px_rgba(212,175,55,0.7)] hover:-translate-y-1 transition-all duration-500 w-full sm:w-auto"
+              <button 
+                onClick={() => {
+                  const user = localStorage.getItem("aura_user");
+                  if (user) {
+                    window.location.href = "/saved";
+                  } else {
+                    window.location.href = "/signup";
+                  }
+                }}
+                className="group flex items-center justify-center gap-3 h-14 px-10 rounded-full bg-[#D4AF37] text-zinc-900 dark:text-black text-lg font-bold shadow-[0_0_20px_rgba(212,175,55,0.12)] hover:shadow-[0_0_40px_rgba(212,175,55,0.3)] hover:-translate-y-1 transition-all duration-500 w-full sm:w-auto"
               >
                 Explore Gallery
-              </Link>
+              </button>
               <button 
                 onClick={() => {
                   const user = localStorage.getItem("aura_user");

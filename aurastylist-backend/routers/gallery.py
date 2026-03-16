@@ -151,3 +151,38 @@ async def fetch_gallery_generation(request_id: str):
         "images": job.get("images", []),
         "recommendation": job.get("recommendation", "")
     }
+
+@router.post("/save")
+async def save_look(user_id: str, outfit_data: dict):
+    if not user_id:
+        raise HTTPException(status_code=400, detail="User ID is required")
+    
+    result = database.save_saved_outfit(user_id, outfit_data)
+    if not result:
+        raise HTTPException(status_code=500, detail="Failed to save look")
+        
+    return {"status": "success", "id": result}
+
+@router.get("/saved/{user_id}")
+async def get_saved_looks(user_id: str):
+    if not user_id:
+        raise HTTPException(status_code=400, detail="User ID is required")
+        
+    outfits = database.get_saved_outfits(user_id)
+    # Convert MongoDB _id to string for JSON serialization
+    for o in outfits:
+        o["_id"] = str(o["_id"])
+        
+    return {"status": "success", "outfits": outfits}
+
+@router.get("/saved-outfit/{outfit_id}")
+async def get_saved_outfit(outfit_id: str):
+    if not outfit_id:
+        raise HTTPException(status_code=400, detail="Outfit ID is required")
+        
+    outfit = database.get_saved_outfit(outfit_id)
+    if not outfit:
+        raise HTTPException(status_code=404, detail="Saved outfit not found")
+        
+    outfit["_id"] = str(outfit["_id"])
+    return {"status": "success", "outfit": outfit}

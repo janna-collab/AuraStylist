@@ -110,6 +110,42 @@ function GalleryContent() {
     }
   };
 
+  const handleSave = async () => {
+    if (selectedImage === null || !images[selectedImage]) return;
+    
+    const userStr = localStorage.getItem("aura_user");
+    if (!userStr) {
+      router.push("/signup");
+      return;
+    }
+    
+    const user = JSON.parse(userStr);
+    const outfitData = {
+      image_url: images[selectedImage],
+      recommendation: recommendation,
+      request_id: request_id,
+      timestamp: new Date().toISOString()
+    };
+    
+    try {
+      const res = await fetch(`${ENDPOINTS.GALLERY_SAVE}?user_id=${user.email}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(outfitData)
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        router.push(`/saved/${data.id}`);
+      } else {
+        alert("Failed to save look. Please try again.");
+      }
+    } catch (err) {
+      console.error("Save error:", err);
+      alert("Error connecting to server.");
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground transition-colors duration-500 font-sans">
       {/* Editorial Header */}
@@ -124,10 +160,19 @@ function GalleryContent() {
         <div className="flex items-center gap-4">
            {selectedImage !== null && (
             <div className="flex gap-3 animate-in fade-in slide-in-from-right-4">
+              <Link 
+                href="/saved"
+                className="flex items-center gap-2 rounded-full border border-zinc-200 dark:border-zinc-700 bg-transparent px-5 py-2.5 text-sm font-semibold text-zinc-900 dark:text-white hover:border-zinc-400 dark:hover:border-white transition-colors"
+              >
+                <Filter size={16} /> Gallery
+              </Link>
               <button className="flex items-center gap-2 rounded-full border border-zinc-200 dark:border-zinc-700 bg-transparent px-5 py-2.5 text-sm font-semibold text-zinc-900 dark:text-white hover:border-zinc-400 dark:hover:border-white transition-colors">
                 <Share2 size={16} /> Share
               </button>
-              <button className="flex items-center gap-2 rounded-full bg-zinc-900 dark:bg-white px-5 py-2.5 text-sm font-semibold text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors">
+              <button 
+                onClick={handleSave}
+                className="flex items-center gap-2 rounded-full bg-zinc-900 dark:bg-white px-5 py-2.5 text-sm font-semibold text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors"
+              >
                 <Download size={16} /> Save Look
               </button>
             </div>

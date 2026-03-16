@@ -72,27 +72,41 @@ export default function StyleMyselfForm({ onSubmit, isLoading }) {
           />
         </div>
 
-        {/* Gender Selection — important for generating the right outfit */}
-        <div>
-          <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            Gender <span className="text-zinc-400 font-normal">(used to generate the right outfit style)</span>
-          </label>
-          <div className="flex gap-3" id="gender-selector">
-            {["Female", "Male", "Non-binary"].map((g) => (
-              <button
-                key={g}
-                type="button"
-                id={`gender-${g.toLowerCase()}`}
-                onClick={() => setFormData({ ...formData, gender: g })}
-                className={`flex-1 rounded-xl py-2.5 text-sm font-semibold border transition-all duration-300 ${
-                  formData.gender === g
-                    ? "bg-[#D4AF37] border-[#D4AF37] text-black shadow-md"
-                    : "bg-transparent border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:border-[#D4AF37]/50"
-                }`}
-              >
-                {g === "Female" ? "♀ Female" : g === "Male" ? "♂ Male" : "⚧ Non-binary"}
-              </button>
-            ))}
+        {/* Gender & Age Selection */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Gender
+            </label>
+            <div className="flex gap-2" id="gender-selector">
+              {["Female", "Male"].map((g) => (
+                <button
+                  key={g}
+                  type="button"
+                  id={`gender-${g.toLowerCase()}`}
+                  onClick={() => setFormData({ ...formData, gender: g })}
+                  className={`flex-1 rounded-xl py-2.5 text-sm font-semibold border transition-all duration-300 ${
+                    formData.gender === g
+                      ? "bg-[#D4AF37] border-[#D4AF37] text-black shadow-md"
+                      : "bg-transparent border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:border-[#D4AF37]/50"
+                  }`}
+                >
+                  {g === "Female" ? "♀ Female" : "♂ Male"}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Age <span className="text-zinc-400 font-normal">(Visual only)</span>
+            </label>
+            <input
+              type="number"
+              placeholder="Your age"
+              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-zinc-900 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-[#D4AF37] transition-all outline-none shadow-sm"
+              value={formData.age || ""}
+              onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+            />
           </div>
         </div>
 

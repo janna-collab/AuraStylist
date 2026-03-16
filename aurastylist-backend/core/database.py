@@ -97,3 +97,38 @@ def get_style_request(request_id: str) -> dict:
             logger.error(f"Error fetching style request {request_id}: {e}")
             return None
     return None
+def save_saved_outfit(user_id: str, outfit_data: dict):
+    if db is not None:
+        try:
+            doc = {
+                "user_id": user_id,
+                **outfit_data,
+                "created_at": uuid.uuid4().hex # Or use datetime if preferred
+            }
+            result = db.saved_outfits.insert_one(doc)
+            return str(result.inserted_id)
+        except Exception as e:
+            logger.error(f"Error saving saved outfit: {e}")
+            return None
+    return None
+
+def get_saved_outfits(user_id: str):
+    if db is not None:
+        try:
+            return list(db.saved_outfits.find({"user_id": user_id}).sort("created_at", -1))
+        except Exception as e:
+            logger.error(f"Error fetching saved outfits for {user_id}: {e}")
+            return []
+    return []
+
+def get_saved_outfit(outfit_id: str):
+    if db is not None:
+        try:
+            from bson.objectid import ObjectId
+            if ObjectId.is_valid(outfit_id):
+                return db.saved_outfits.find_one({"_id": ObjectId(outfit_id)})
+            return db.saved_outfits.find_one({"_id": outfit_id})
+        except Exception as e:
+            logger.error(f"Error fetching saved outfit {outfit_id}: {e}")
+            return None
+    return None

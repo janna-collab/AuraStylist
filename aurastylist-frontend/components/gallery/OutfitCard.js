@@ -3,7 +3,7 @@
 import { CheckCircle2, Maximize2, RefreshCw, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 
-export default function OutfitCard({ imageUrl, altText, recommendation, isSelected, onSelect, onRegenerate }) {
+export default function OutfitCard({ imageUrl, altText, recommendation, isSelected, onSelect, onRegenerate, hideRegenerate = false }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
@@ -37,30 +37,34 @@ export default function OutfitCard({ imageUrl, altText, recommendation, isSelect
         }`}
       >
         <div className="mt-auto flex items-center justify-between gap-2">
-          <button
-            onClick={onSelect}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 font-semibold transition-all backdrop-blur-md ${
-              isSelected
-                ? "bg-green-600 dark:bg-green-500 text-white shadow-lg"
-                : "bg-white/95 text-zinc-900 hover:bg-white dark:bg-black/95 dark:text-white dark:hover:bg-black border border-zinc-200 dark:border-zinc-800"
-            }`}
-          >
-            {isSelected ? (
-              <>
-                <CheckCircle2 size={18} /> Selected
-              </>
-            ) : (
-              "Select Look"
-            )}
-          </button>
+          {!hideRegenerate && (
+            <button
+              onClick={onSelect}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 font-semibold transition-all backdrop-blur-md ${
+                isSelected
+                  ? "bg-green-600 dark:bg-green-500 text-white shadow-lg"
+                  : "bg-white/95 text-zinc-900 hover:bg-white dark:bg-black/95 dark:text-white dark:hover:bg-black border border-zinc-200 dark:border-zinc-800"
+              }`}
+            >
+              {isSelected ? (
+                <>
+                  <CheckCircle2 size={18} /> Selected
+                </>
+              ) : (
+                "Select Look"
+              )}
+            </button>
+          )}
           
-          <button
-            onClick={onRegenerate}
-            title="Try another variation"
-            className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur-md hover:bg-white/30 transition-colors"
-          >
-            <RefreshCw size={18} />
-          </button>
+          {!hideRegenerate && (
+            <button
+              onClick={onRegenerate}
+              title="Try another variation"
+              className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur-md hover:bg-white/30 transition-colors"
+            >
+              <RefreshCw size={18} />
+            </button>
+          )}
           
           <button
             title="Expand image"
