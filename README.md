@@ -1,113 +1,70 @@
-# AuraStylist AI Fashion Application
+# AuraStylist: Advanced AI Fashion Orchestration
 
-Welcome to **AuraStylist**, an advanced AI-powered web app that bridges the gap between digital style generation and real-world shopping automation. Built with **Next.js**, **FastAPI**, **Amazon Bedrock (Nova & Titan)**, and **Playwright**.
-
----
-
-## Architecture Overview
-
-1. **Frontend (`/aurastylist-frontend`)**: A React/Next.js application built with Tailwind CSS, providing a seamless "Virtual Try-On" gallery, dynamic styling request forms, an onboarding wizard, and a global AI Stylist Chatbot.
-2. **Backend (`/aurastylist-backend`)**: A robust FastAPI Python server handling all AI orchestration via AWS Bedrock, data persistence via MongoDB, and UI shopping automation via headless Playwright scripts.
+Welcome to **AuraStylist**, a premium AI-powered fashion ecosystem built for the **Amazon Nova AI Hackathon**. AuraStylist bridges the gap between digital style inspiration and real-world shopping by leveraging high-fidelity multimodal intelligence to analyze, curate, and source the perfect ensemble.
 
 ---
 
-## 🛠 Prerequisites
+## 🏗 High-Level Architecture
 
-Make sure you have the following installed on your machine:
-- **Node.js** (v18+)
-- **Python** (v3.10+)
-- **MongoDB** (Local instance running on `localhost:27017` or an Atlas Cloud URI)
-- An **AWS Account** with access granted to Amazon Bedrock models (`us.amazon.nova-lite-v1:0`, `us.amazon.nova-pro-v1:0`, `amazon.titan-image-generator-v1`).
+1.  **Aesthetic Frontend (`/aurastylist-frontend`)**: A luxury-themed **Next.js** application featuring a "Golden Liner" design system. Includes a dynamic style consultation engine, a persistent saved collection gallery, and a high-detail individual look viewer.
+2.  **Orchestration Backend (`/aurastylist-backend`)**: A high-performance **FastAPI** server that manages multi-layered AI workflows. It integrates natively with the **Amazon Nova** family via **AWS Bedrock** and powers a high-precision shopping agent using **AWS OpenSearch**.
 
 ---
 
-## 🚀 Setup Instructions
+## 🛠 Tech Stack
 
-### 1. Backend Setup (FastAPI)
-The backend manages the heavy AI lifting and automated browser searches.
-
-1. Navigate to the backend directory:
-   ```bash
-   cd aurastylist-backend
-   ```
-2. Set up a Python virtual environment (optional but recommended):
-   ```bash
-   python -m venv venv
-   venv/Scripts/activate  # On Windows
-   ```
-3. Install Python dependencies:
-   ```bash
-   pip install -r requirements.txt
-   playwright install chromium
-   ```
-4. Configure Environment Variables:
-   Rename the provided `.env.example` file to `.env` inside the `aurastylist-backend` directory, and fill in your keys:
-   ```env
-   AWS_ACCESS_KEY_ID=your-aws-access-key
-   AWS_SECRET_ACCESS_KEY=your-aws-secret-key
-   AWS_REGION=us-east-1
-   
-   # Optional: Set this if you use MongoDB Atlas cloud instead of local
-   # MONGO_URI=mongodb+srv://... 
-   ```
-
-### 2. Frontend Setup (Next.js)
-The frontend drives the beautiful, animated user experience.
-
-1. Navigate to the frontend directory:
-   ```bash
-   cd aurastylist-frontend
-   ```
-2. Install Node dependencies:
-   ```bash
-   npm install
-   ```
-3. Configure Environment Variables:
-   Open the `.env.local` file inside the `aurastylist-frontend` directory. Make sure it points to your FastAPI backend:
-   ```env
-   NEXT_PUBLIC_API_URL=http://localhost:8000
-   ```
+-   **Frontend**: Next.js, React, Tailwind CSS, Lucide React, Framer Motion, Axios.
+-   **Backend**: Python, FastAPI, Boto3 (AWS SDK), Pymongo, Pillow, HTTPX.
+-   **Infrastructure**: AWS Bedrock, Amazon OpenSearch, MongoDB.
 
 ---
 
-## 🏃‍♂️ Running the Application
+## 🧬 The Amazon Nova Engine
 
-To run the full stack locally, you need to start both servers simultaneously in two separate terminal windows.
+AuraStylist utilizes the full capabilities of the **Amazon Nova** family to deliver a unified multimodal experience:
 
-**Start the Backend Server:**
-```bash
-cd aurastylist-backend
-uvicorn main:app --reload
-```
-
-**Start the Frontend Server:**
-```bash
-cd aurastylist-frontend
-npm run dev
-```
-
-Finally, open your browser and navigate to **`http://localhost:3000/getting-started`** to begin the full onboarding flow!
+| Model | Application in AuraStylist |
+| :--- | :--- |
+| **Nova Omni** | **Multi-Modal Brain**: Orchestrates high-precision outfit parsing, generates complex image prompts for try-ons, and provides advanced stylistic reasoning. |
+| **Nova Pro** | **Strategy & Reasoning**: Generates comprehensive Style Reports, actionable fashion recommendations, and extracts structured search metadata. |
+| **Nova Lite** | **Edge Vision & Speed**: Performs rapid analysis of consultation photos and reference images to extract "Aesthetic DNA" and physical markers (undertones, proportions). |
+| **Nova Canvas** | **Virtual Studio**: Generates photorealistic, editorial-grade fashion images for the Virtual Try-On experience. |
+| **Multimodal Embeddings** | **Semantic Search**: Powers the Shopping Agent by converting visual and textual search context into high-dimensional vectors for OpenSearch retrieval. |
 
 ---
 
-## ✨ Features Checklist
-- [x] Multi-step Profile Onboarding (Image + Manual inputs)
-- [x] AI Style Analysis & Report Generation via Nova Pro
-- [x] "Own Self" vs "Someone Else" dynamic styling requests
-- [x] Titan Image Generator Virtual Try-On (`/gallery`)
-- [x] Automated Outfit Parsing & Shopping via Playwright (`/shop`)
-- [x] Global Floating Assistant Chatbot (Text, Multimodal, Voice-Ready)
+## ✨ Core Features
+
+-   [x] **Physical Profile Intelligence**: Analyzes skin undertones, body proportions, and face shapes via Nova Vision.
+-   [x] **Multimodal Consultation**: Processes text-based constraints and reference images to define a user's unique vibe.
+-   [x] **Virtual Try-On 2.0**: Generates high-fidelity ensembles tailored to the user's specific consultation profile.
+-   [x] **Persistent High-Fashion Archive**: Save curated looks to a private gallery with dedicated high-detail look pages.
+-   [x] **High-Precision Shopping Agent**: A 4-layer multimodal pipeline (Parsing → Vectorization → OpenSearch Retrieval → Style Ranking) to find real-world matches.
+-   [x] **Intelligent Assistant**: A persistent AI stylist capable of understanding visual uploads and voice intent.
 
 ---
 
-## 🧬 Every Nova Feature in Use
+## 🚀 Getting Started
 
-To ensure strict compliance with hackathon judging criteria, here is how each Nova model is utilized natively within the AuraStylist architecture:
+### Prerequisites
 
-| Model | Feature Used | Role in AuraStylist |
-| :--- | :--- | :--- |
-| **Nova 2 Lite** | Multimodal Perception | Analyzes photos (Full Body Profile, Reference Looks, or Other Person) to understand body type, face shape, color, and style metrics. Also handles image uploads in the Chat Bot. |
-| **Nova 2 Pro** | Extended Thinking | Generates the "General Style Report" and provides fashion-accurate reasoning for the advice. |
-| **Nova 2 Sonic** | Speech-to-Speech | Powers the real-time, conversational voice functionality in the standalone Chat Bot. |
-| **Nova 2 Omni** | Native Image Gen | Generates high-fidelity, complete-outfit virtual try-on images directly on the person's initial profile photo. |
-| **Nova Act** | UI Automation | The "Hands." It performs the clicks, scrolls, and multi-platform filtering on live e-commerce sites (Amazon, Google Shopping) to find real products. |
+-   **Node.js** (v18+) & **Python** (v3.10+)
+-   **MongoDB** (Local or Atlas)
+-   **AWS Account** with Bedrock access to the **Nova Family** (Omni, Pro, Lite, Canvas, Embeddings) and **OpenSearch**.
+
+### Installation
+
+1.  **Backend**:
+    ```bash
+    cd aurastylist-backend
+    pip install -r requirements.txt
+    uvicorn main:app --reload
+    ```
+2.  **Frontend**:
+    ```bash
+    cd aurastylist-frontend
+    npm install
+    npm run dev
+    ```
+
+Navigate to `http://localhost:3000` to begin your journey into high-precision fashion.
