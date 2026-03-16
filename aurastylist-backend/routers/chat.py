@@ -13,31 +13,36 @@ class ChatMessage(BaseModel):
 
 @router.post("/message")
 async def chat_text(payload: ChatMessage):
-    """Handles standard text chat utilizing Nova Lite."""
+    """Handles standard text chat utilizing Nova Lite with an expert persona."""
     try:
         messages = [{"role": "user", "content": [{"text": payload.message}]}]
         system_prompts = [
-            "You are a friendly, expert AI Fashion Stylist. Keep answers concise, helpful, and fashionable."
+            "You are AuraStylist, a world-class AI Fashion Stylist. "
+            "Your responses must be elite, sophisticated, and concise. "
+            "Focus on high-end fashion, fabric quality, and timeless style. "
+            "Provide clear, actionable advice that feels like a 'golden liner'—brief yet invaluable."
         ]
         
         reply = nova.invoke_nova(nova.NOVA_LITE, messages, system_prompts)
         if not reply:
-            reply = "I'm having a little trouble connecting to my styling brain right now. Can you try again?"
+            reply = "I am momentarily reflecting on the latest collections. Please share your thoughts again."
             
         return {"reply": reply}
     except Exception as e:
         logger.error(f"Chat error: {e}")
-        raise HTTPException(status_code=500, detail="Inner stylist error")
+        raise HTTPException(status_code=500, detail="Stylist brain momentarily offline")
 
 @router.post("/multimodal")
 async def chat_multimodal(
     message: str = Form(...),
     image: UploadFile = File(...)
 ):
-    """Handles image + text chat utilizing Nova Lite."""
+    """Handles image + text chat with visual expertise."""
     try:
         file_bytes = await image.read()
-        ext = image.filename.split('.')[-1]
+        ext = image.filename.split('.')[-1].lower()
+        if ext == "jpg": ext = "jpeg"
+        if ext not in ["jpeg", "png", "webp"]: ext = "jpeg" # Default fallback
         
         messages = [
             {
@@ -56,43 +61,43 @@ async def chat_multimodal(
             }
         ]
         system_prompts = [
-            "You are a friendly, expert AI Fashion Stylist. Analyze the image and respond concisely."
+            "You are AuraStylist, a visual fashion expert. "
+            "Analyze the garment provided with precision. "
+            "Discuss silhouette, texture, and coordination. "
+            "Keep your expert verdict concise and elegant."
         ]
         
         reply = nova.invoke_nova(nova.NOVA_LITE, messages, system_prompts)
         if not reply:
-            reply = "I couldn't quite see the image clearly. Please try a different one."
+            reply = "This piece is intriguing, yet I need a clearer view to give my expert verdict."
             
         return {"reply": reply}
     except Exception as e:
         logger.error(f"Multimodal chat error: {e}")
-        raise HTTPException(status_code=500, detail="Inner stylist error")
+        raise HTTPException(status_code=500, detail="Visual expertise offline")
 
 @router.post("/voice")
 async def chat_voice(
     audio: UploadFile = File(...)
 ):
-    """
-    Handles audio blobs. In a real Amazon environment with Nova Sonic, 
-    we would stream this directly. 
-    For simulation, we'll mock the transcribe -> process -> synthesise loop.
-    """
+    """Handles voice requests with a conversational yet sophisticated tone."""
     try:
-        # 1. (Mock) Transcribe Audio using Nova Sonic Speech-to-Speech
-        user_text = "Does this outfit look good for a summer wedding?"
+        # Mocking the voice-to-text-to-voice flow with premium style
+        user_text = "I need something sophisticated for a gala."
         
-        # 2. Process via Nova Lite (as text or image) to get response
         messages = [{"role": "user", "content": [{"text": user_text}]}]
-        system_prompts = ["You are a friendly audio stylist powered by Nova Sonic. Be conversational."]
-        reply = nova_service.invoke_nova(nova_service.NOVA_LITE, messages, system_prompts)
+        system_prompts = [
+            "You are AuraStylist, speaking as a personal couture consultant. "
+            "Your tone should be warm, confident, and highly knowledgeable. "
+            "Recommend only the most refined options."
+        ]
+        reply = nova.invoke_nova(nova.NOVA_LITE, messages, system_prompts)
         
-        # 3. (Mock) Return the text to be synthesized by Nova Sonic / Browser TTS
         return {
-            "transcribed_text": user_text,
-            "reply": reply or "Yes, that sounds like a lovely choice!",
-            "note": "Nova Sonic is processing this as a speech-to-speech stream."
+          "transcribed_text": user_text,
+          "reply": reply or "A velvet tuxedo or a floor-length silk gown would be impeccable.",
+          "note": "Optimized for Nova Sonic speech synthesis."
         }
-
     except Exception as e:
         logger.error(f"Voice chat error: {e}")
-        raise HTTPException(status_code=500, detail="Voice stylist error")
+        raise HTTPException(status_code=500, detail="Voice consultant error")

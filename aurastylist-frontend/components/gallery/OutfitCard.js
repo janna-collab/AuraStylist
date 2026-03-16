@@ -2,9 +2,8 @@
 
 import { CheckCircle2, Maximize2, RefreshCw, ShoppingBag } from "lucide-react";
 import { useState } from "react";
-import Link from "next/link";
 
-export default function OutfitCard({ imageUrl, altText, isSelected, onSelect, onRegenerate }) {
+export default function OutfitCard({ imageUrl, altText, recommendation, isSelected, onSelect, onRegenerate }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
@@ -18,7 +17,7 @@ export default function OutfitCard({ imageUrl, altText, isSelected, onSelect, on
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Fallback skeleton while image loads natively */}
+      {/* Fallback skeleton while image loads */}
       {!isImageLoaded && (
         <div className="absolute inset-0 max-h-[500px] min-h-[400px] animate-pulse bg-zinc-200 dark:bg-zinc-800" />
       )}
@@ -72,10 +71,22 @@ export default function OutfitCard({ imageUrl, altText, isSelected, onSelect, on
           
           {isSelected && (
             <button
-              onClick={() => window.open(`https://www.google.com/search?tbm=shop&q=${encodeURIComponent(altText)}`, '_blank')}
+              id="buy-now-btn"
+              onClick={() => {
+                // Use sessionStorage to avoid 431 (URL Too Large)
+                try {
+                  sessionStorage.setItem("aura_shop_image", imageUrl);
+                  if (recommendation) {
+                    sessionStorage.setItem("aura_shop_description", recommendation);
+                  }
+                } catch (e) {
+                  console.warn("sessionStorage unavailable:", e);
+                }
+                window.location.href = "/shop";
+              }}
               className="flex items-center gap-2 rounded-xl bg-white text-black px-4 py-3 font-bold hover:scale-105 transition-transform ml-2 shadow-lg"
             >
-              <ShoppingBag size={18} /> Buy Now
+              <ShoppingBag size={18} /> Buy This Look
             </button>
           )}
         </div>

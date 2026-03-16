@@ -18,6 +18,7 @@ function GalleryContent() {
   const router = useRouter();
 
   const [images, setImages] = useState([]);
+  const [recommendation, setRecommendation] = useState("");
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
   const [error, setError] = useState(null);
@@ -41,6 +42,7 @@ function GalleryContent() {
           const data = await res.json();
           if (data.status === "completed") {
             setImages(data.images);
+            setRecommendation(data.recommendation || "");
             setLoading(false);
             clearInterval(interval);
           } else if (data.status === "processing") {
@@ -78,11 +80,34 @@ function GalleryContent() {
   }, [request_id, loading]);
 
 
-  const regenerateImage = async (index) => {
-    // Trigger a fresh generation for the entire set
-    setLoading(true);
-    setImages([]);
-    setPollCount(0);
+  const [regenerating, setRegenerating] = useState(false);
+
+  const regenerateImage = async () => {
+    if (!request_id || regenerating) return;
+    
+    try {
+      setRegenerating(true);
+      // Call the backend regenerate endpoint
+      const res = await fetch(`${ENDPOINTS.GALLERY_REGENERATE}?request_id=${request_id}`, {
+        method: "POST",
+      });
+      
+      if (res.ok) {
+        // Reset state and start polling again
+        setImages([]);
+        setLoading(true);
+        setPollCount(0);
+        setError(null);
+      } else {
+        console.error("Regeneration request failed:", res.status);
+        setError("Regeneration failed. Please try again.");
+      }
+    } catch (err) {
+      console.error("Regeneration error:", err);
+      setError("Connection error during regeneration.");
+    } finally {
+      setRegenerating(false);
+    }
   };
 
   return (
@@ -106,6 +131,17 @@ function GalleryContent() {
                 <Download size={16} /> Save Look
               </button>
             </div>
+          )}
+          {!loading && request_id && (
+            <button
+              id="regenerate-btn"
+              onClick={regenerateImage}
+              disabled={regenerating}
+              className="flex items-center gap-2 rounded-full border border-primary px-5 py-2.5 text-sm font-semibold text-primary hover:bg-primary hover:text-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Wand2 size={16} className={regenerating ? "animate-spin" : ""} />
+              {regenerating ? "Regenerating…" : "Regenerate Looks"}
+            </button>
           )}
           <ThemeToggle />
         </div>
@@ -177,6 +213,7 @@ function GalleryContent() {
                  <OutfitCard
                    imageUrl={img}
                    altText={`Curated Look ${idx + 1}`}
+                   recommendation={recommendation}
                    isSelected={selectedImage === idx}
                    onSelect={() => setSelectedImage(idx)}
                    onRegenerate={() => regenerateImage(idx)}

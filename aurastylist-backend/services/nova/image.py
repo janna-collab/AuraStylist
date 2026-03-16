@@ -11,25 +11,50 @@ from typing import Optional, List, Dict, Any
 
 logger = logging.getLogger(__name__)
 
+def _build_gender_directive(gender: Optional[str]) -> str:
+    """Returns a strong gender enforcement string for prompts."""
+    if not gender:
+        return ""
+    g = gender.strip().lower()
+    if g in ("female", "woman", "girl"):
+        return (
+            " STRICT GENDER RULE: The subject is FEMALE. Generate ONLY women's fashion — "
+            "dresses, skirts, women's tops, feminine cuts and silhouettes. "
+            "Do NOT generate any men's clothing, suits, or gender-neutral styles. "
+            "The model must appear unambiguously female."
+        )
+    elif g in ("male", "man", "boy"):
+        return (
+            " STRICT GENDER RULE: The subject is MALE. Generate ONLY men's fashion — "
+            "suits, trousers, shirts, men's cuts and silhouettes. "
+            "Do NOT generate any women's clothing, dresses, skirts, or feminine styles. "
+            "The model must appear unambiguously male."
+        )
+    return f" STRICT GENDER RULE: The subject is {gender}. Generate attire appropriate ONLY for {gender}."
+
 def generate_image(
     prompt: str, 
     negative_prompt: str = None, 
     count: int = 4, 
     use_omni: bool = False,
     source_image_bytes: Optional[bytes] = None,
-    image_format: str = "jpeg"
+    image_format: str = "jpeg",
+    gender: Optional[str] = None
 ) -> list:
-    """Generates images using Nova Canvas or Omni. Handles inpainting if source_image_bytes is provided."""
+    """Generates images using Nova Canvas. Handles inpainting if source_image_bytes is provided."""
+    gender_directive = _build_gender_directive(gender)
+    full_prompt = prompt + gender_directive
+    
     if source_image_bytes:
         logger.info("generate_image: using source image bytes for inpainting prompt")
-        return inpaint_image(source_image_bytes, prompt, negative_prompt, count)
+        return inpaint_image(source_image_bytes, full_prompt, negative_prompt, count, gender=gender)
     
     model_id = NOVA_CANVAS
     seed = int.from_bytes(os.urandom(4), 'little') % MAX_SEED
     
     request_body = {
         "taskType": "TEXT_IMAGE",
-        "textToImageParams": {"text": prompt},
+        "textToImageParams": {"text": full_prompt},
         "imageGenerationConfig": {
             "numberOfImages": count,
             "quality": "standard",
@@ -43,7 +68,6 @@ def generate_image(
     try:
         response_body = bedrock_client.invoke_model(model_id, request_body)
         
-        # Robust parsing ported from nova_service.py
         images = []
         if "images" in response_body:
             images = response_body["images"]
@@ -56,18 +80,24 @@ def generate_image(
         logger.error(f"Image generation failed for prompt '{prompt[:50]}...': {e}")
         return []
 
-def inpaint_image(image_bytes: bytes, prompt: str, negative_prompt: str = None, count: int = 1) -> list:
+def inpaint_image(image_bytes: bytes, prompt: str, negative_prompt: str = None, count: int = 1, gender: Optional[str] = None) -> list:
     """Text-guided inpainting (Virtual Try-On)."""
-    # Ported resize call to ensure 16-pixel alignment
-    resized_bytes = resize_image_if_needed(image_bytes)
+    resized_bytes, _ = resize_image_if_needed(image_bytes)
     seed = int.from_bytes(os.urandom(4), 'little') % MAX_SEED
+    
+    gender_directive = _build_gender_directive(gender)
+    inpaint_prompt = (
+        prompt + gender_directive +
+        " PRESERVE FACE EXACTLY. Do not alter face, eyes, nose, mouth, or hairline. "
+        "Keep body pose and shape unchanged. Replace only clothing and accessories."
+    )
     
     fallbacks = ["clothing", "outfit", "apparel", "garments", "upper body", "full body"]
     
     for mask_term in fallbacks:
         in_painting_params = {
             "image": base64.b64encode(resized_bytes).decode("utf-8"),
-            "text": prompt + " PRESERVE FACE EXACTLY. Do not alter face, eyes, nose, mouth, or hairline. Keep body pose and shape unchanged. Replace only clothing and accessories.",
+            "text": inpaint_prompt,
             "maskPrompt": mask_term,
             "maskStrength": 0.97
         }
@@ -88,14 +118,12 @@ def inpaint_image(image_bytes: bytes, prompt: str, negative_prompt: str = None, 
         try:
             response_body = bedrock_client.invoke_model(NOVA_CANVAS, request_body)
             
-            # Check for error in the returned body (since we no longer raise on ValidationException in client)
             if isinstance(response_body, dict) and "error" in response_body:
                 if "ValidationException" in response_body["error"] and "maskPrompt" in response_body["error"]:
                     logger.warning(f"Mask prompt '{mask_term}' failed, trying next fallback...")
                     continue
                 else:
                     logger.error(f"Inpainting failed: {response_body['error']}")
-                    # If it's a non-mask error, break the loop and try T2I below
                     break
 
             images = response_body.get("images", [])
@@ -105,7 +133,6 @@ def inpaint_image(image_bytes: bytes, prompt: str, negative_prompt: str = None, 
             logger.error(f"Inpainting failed unexpectedly: {e}")
             break
             
-    # Final Fallback: If inpainting fails for ALL masks, return standard Text-to-Image
-    logger.info("Inpainting (Virtual Try-On) failed completely. Falling back to simple Text-to-Image generation.")
-    # We recursion-call generate_image WITHOUT source_image_bytes to trigger the T2I flow
-    return generate_image(prompt, negative_prompt, count, use_omni=False, source_image_bytes=None)
+    # Final Fallback: Text-to-Image
+    logger.info("Inpainting failed completely. Falling back to Text-to-Image generation.")
+    return generate_image(prompt, negative_prompt, count, use_omni=False, source_image_bytes=None, gender=gender)

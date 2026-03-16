@@ -9,13 +9,13 @@ import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import NavbarLogo from "@/components/NavbarLogo";
 import { useUserProfileStore } from "@/store/userProfile";
-import { generateStyleReportAPI, generateOutfitsAPI, createStyleRequestAPI } from "@/lib/api";
+import { createStyleRequestAPI } from "@/lib/api";
 import { CheckCircle2, Info, Loader2, Image as ImageIcon } from "lucide-react";
 
 export default function StyleRequestPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("myself"); // 'myself' or 'someone'
-  const { height, shoeSize, preferredFit, gender, bodyAnalysis, setStyleReport, setStyleOutfits } = useUserProfileStore();
+  const { height, shoeSize, preferredFit, gender: storeGender, bodyAnalysis, setStyleReport, setStyleOutfits } = useUserProfileStore();
   const [showResults, setShowResults] = useState(false);
   const [report, setLocalReport] = useState(null);
   const [outfits, setLocalOutfits] = useState([]);
@@ -31,12 +31,18 @@ export default function StyleRequestPage() {
     setIsSubmitting(true);
     
     try {
-      // Prepare the request object for our new API utility
+      // For 'myself' tab: use gender from the form toggle (data.gender) first,
+      // fall back to the Zustand store gender (from onboarding), then default to "Female"
+      // For 'someone' tab: use gender from the someone-else form
+      const resolvedGender = activeTab === "myself"
+        ? (data.gender || storeGender || "Female")
+        : (data.gender || "Female");
+
       const requestParams = {
         target_type: activeTab,
         venue: data.venue,
         aesthetic: data.aesthetic,
-        gender: activeTab === "someone" ? data.gender : gender,
+        gender: resolvedGender,
         height: activeTab === "myself" ? height : data.height,
         dress_type: data.dressType,
         price_range: data.priceRange,
@@ -50,7 +56,7 @@ export default function StyleRequestPage() {
         // Map the standardized result to our state
         const profile = {
             bestColors: result.palette || [],
-            flatteringCuts: typeof result.cuts === 'string' ? result.cuts.split(', ') : (result.cuts || [])
+            flatteringCuts: typeof result.cuts === "string" ? result.cuts.split(", ") : (result.cuts || [])
         };
         
         setLocalReport(profile);
@@ -61,7 +67,7 @@ export default function StyleRequestPage() {
         setStyleOutfits(generatedOutfits);
 
         setShowResults(true);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
         throw new Error("Invalid response from server: missing request_id");
       }

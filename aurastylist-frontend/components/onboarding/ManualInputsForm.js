@@ -22,6 +22,19 @@ export default function ManualInputsForm({ onComplete, onBack }) {
 
   const fits = ["Tailored", "Relaxed", "Oversized", "Athletic"];
 
+  // Safely extract a display string from bodyAnalysis
+  const analysisText = (() => {
+    if (!bodyAnalysis) return "";
+    if (typeof bodyAnalysis === "string") return bodyAnalysis;
+    if (bodyAnalysis.analysis) return String(bodyAnalysis.analysis);
+    if (bodyAnalysis.message) return String(bodyAnalysis.message);
+    // If it's the object {skinUndertone, bodyProportions, faceShape}
+    if (bodyAnalysis.skinUndertone || bodyAnalysis.skin_undertone) {
+        return "AI analysis complete. We've detected your undertone and body type.";
+    }
+    return "Analysis complete";
+  })();
+
   return (
     <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="mb-8 text-center">
@@ -43,7 +56,7 @@ export default function ManualInputsForm({ onComplete, onBack }) {
           <div className="flex gap-4">
             <div className="flex-1">
               <p className="text-zinc-700 dark:text-zinc-300 text-sm leading-relaxed italic">
-                "{typeof bodyAnalysis === 'string' ? bodyAnalysis : bodyAnalysis.analysis || bodyAnalysis.message || "Analysis complete"}"
+                "{analysisText}"
               </p>
             </div>
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#D4AF37]/20 text-[#D4AF37]">
@@ -85,7 +98,7 @@ export default function ManualInputsForm({ onComplete, onBack }) {
         <div className="grid gap-6 sm:grid-cols-2">
           {/* Height Input */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-900 dark:text-锌-100 flex items-center gap-2">
+            <label className="text-sm font-medium text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
               <Ruler size={16} className="text-zinc-400" />
               Height
             </label>

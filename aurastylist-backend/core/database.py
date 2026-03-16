@@ -66,10 +66,14 @@ def save_uploaded_image(file_bytes: bytes, filename: str) -> str:
 def save_style_request(user_id: str, request_data: dict):
     if db is not None:
         try:
-            result = db.style_requests.insert_one({
+            doc = {
                 "user_id": user_id,
                 **request_data
-            })
+            }
+            if "request_id" in request_data:
+                doc["_id"] = request_data["request_id"]
+                
+            result = db.style_requests.insert_one(doc)
             return str(result.inserted_id)
         except Exception as e:
             logger.error(f"Error saving style request: {e}")
@@ -81,10 +85,13 @@ def get_style_request(request_id: str) -> dict:
     if db is not None:
         try:
             from bson.objectid import ObjectId
-            if not ObjectId.is_valid(request_id):
-                logger.warning(f"Invalid ObjectId format: {request_id}")
-                return None
-            request_doc = db.style_requests.find_one({"_id": ObjectId(request_id)})
+            # Try finding by string ID first (for custom req_ IDs)
+            request_doc = db.style_requests.find_one({"_id": request_id})
+            
+            # If not found and it's a valid ObjectId, try that
+            if not request_doc and ObjectId.is_valid(request_id):
+                request_doc = db.style_requests.find_one({"_id": ObjectId(request_id)})
+                
             return request_doc
         except Exception as e:
             logger.error(f"Error fetching style request {request_id}: {e}")

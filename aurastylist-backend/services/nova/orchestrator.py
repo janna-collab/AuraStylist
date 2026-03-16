@@ -42,11 +42,13 @@ class StyleOrchestrator:
             }
             # Generate the detailed report (Overwrites the basic profile with enriched info)
             from .reasoning import generate_style_report_pro
-            result["user_profile"] = generate_style_report_pro(
+            enriched_profile = generate_style_report_pro(
                 json.dumps(result["user_profile"]), 
                 manual_inputs, 
                 use_omni=self.use_omni
             )
+            if enriched_profile:
+                result["user_profile"] = enriched_profile
 
         result["recommendation"] = generate_outfit_recommendation(
             aesthetic=user_request.get("aesthetic"),
@@ -77,17 +79,17 @@ class StyleOrchestrator:
                 result["recommendation"],
                 user_request.get("aesthetic"),
                 user_request.get("venue"),
-                subject="a person"
+                gender=user_request.get("gender")
             )
 
         negative = self.prompt_factory.get_standard_negative()
         
         if image_bytes and user_request.get("target_type") in ["myself", "someone"]:
             # Virtual Try-On with original image
-            result["images"] = inpaint_image(image_bytes, final_prompt, negative)
+            result["images"] = inpaint_image(image_bytes, final_prompt, negative, gender=user_request.get("gender"))
         else:
             # Text-to-image variation
-            result["images"] = generate_image(final_prompt, negative, use_omni=self.use_omni)
+            result["images"] = generate_image(final_prompt, negative, use_omni=self.use_omni, gender=user_request.get("gender"))
         
         result["status"] = "success"
         return result

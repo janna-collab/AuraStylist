@@ -1,6 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Form
 from pydantic import BaseModel
+from typing import Optional
 import logging
+import base64
 from services import nova, shopping_agent
 
 logger = logging.getLogger(__name__)
@@ -8,36 +10,38 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 class ShopRequest(BaseModel):
-    image_url: str
+    image_url: Optional[str] = None
+    image_bytes_b64: Optional[str] = None
     outfit_description: str = ""
 
 @router.post("/search")
 async def search_outfit_components(request: ShopRequest):
     """
-    1. Pass description/image context to Nova Lite to extract components.
-    2. Pass components to the Playwright shopping agent.
+    Hybrid Visual Search flow:
+    1. If image provided, use Nova Omni to segment into items (Top, Bottom, etc).
+    2. Run hybrid shopping agent (Lens for discovery, CSE API for 'Buy Now' links).
     """
     try:
-        # 1. Parse into components using Nova Lite
-        components = nova.extract_outfit_components(request.outfit_description)
-        if not components:
-            logger.warning("Nova failed to extract components, using fallback")
-            components = {
-                "top": "Elegant silk blouse",
-                "bottom": "Tailored wide-leg trousers",
-                "shoes": "Black stiletto heels",
-                "accessories": "Gold statement necklace"
-            }
-            
-        logger.info(f"Extracted components: {components}")
-        
-        # 2. Scrape/Search for each component using Playwright (simulating Nova Act)
-        results = await shopping_agent.search_outfit_components(components)
+        image_bytes = None
+        if request.image_bytes_b64:
+            # Handle base64 image if provided directly
+            try:
+                b64_str = request.image_bytes_b64
+                if "base64," in b64_str:
+                    b64_str = b64_str.split("base64,")[1]
+                image_bytes = base64.b64decode(b64_str)
+            except Exception as e:
+                logger.error(f"Failed to decode image bytes: {e}")
 
-        
+        # Execute the refined visual search workflow
+        results = await shopping_agent.execute_aws_shopping_search(
+            image_url=request.image_url,
+            image_bytes=image_bytes,
+            outfit_description=request.outfit_description
+        )
+
         return {
             "status": "success",
-            "components_searched": list(components.keys()),
             "results": results
         }
     except Exception as e:

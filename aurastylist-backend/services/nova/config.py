@@ -11,6 +11,7 @@ NOVA_MICRO = "amazon.nova-micro-v1:0"
 NOVA_LITE = "amazon.nova-lite-v1:0"
 NOVA_PRO = "amazon.nova-pro-v1:0"
 NOVA_CANVAS = "amazon.nova-canvas-v1:0"
+NOVA_EMBEDDING = "amazon.nova-embed-image-v1:0"
 
 # Nova Omni is generally mapped to the Pro model for multimodal reasoning in v1
 NOVA_OMNI = "amazon.nova-pro-v1:0" 

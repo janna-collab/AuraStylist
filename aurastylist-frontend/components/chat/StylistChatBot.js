@@ -40,15 +40,10 @@ export default function StylistChatBot() {
         body: JSON.stringify({ message: text })
       });
       
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      
       const data = await res.json();
-      setMessages([...newMessages, { role: "bot", content: data.reply || "I'm having trouble connecting to my stylist brain." }]);
+      setMessages([...newMessages, { role: "bot", content: data.reply || "I am currently refining my fashion insights. Please try again." }]);
     } catch (err) {
-      console.error(err);
-      setMessages([...newMessages, { role: "bot", content: "Sorry, I am offline right now!" }]);
+      setMessages([...newMessages, { role: "bot", content: "My stylist sense is currently offline. Please reconnect shortly." }]);
     } finally {
       setIsTyping(false);
     }
@@ -58,12 +53,11 @@ export default function StylistChatBot() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Simulate sending image to backend
     setMessages([...messages, { role: "user", content: `[Uploaded Image: ${file.name}]` }]);
     setIsTyping(true);
 
     setTimeout(() => {
-      setMessages((prev) => [...prev, { role: "bot", content: "That looks like a great piece! It definitely fits a Dark Academia aesthetic if you pair it with tailored wool trousers and loafers." }]);
+      setMessages((prev) => [...prev, { role: "bot", content: "This piece exudes timeless elegance. I would recommend pairing it with a structured blazer and minimal gold accents for a truly curated look." }]);
       setIsTyping(false);
     }, 2000);
   };
@@ -71,17 +65,17 @@ export default function StylistChatBot() {
   const toggleRecording = () => {
     if (isRecording) {
       setIsRecording(false);
-      // Simulate stopping recording and sending audio
       setIsTyping(true);
-      setMessages([...messages, { role: "user", content: "🎤 [Voice Memo]" }]);
+      setMessages([...messages, { role: "user", content: "🎤 [Inquiring via Voice]" }]);
       setTimeout(() => {
-        setMessages((prev) => [...prev, { role: "bot", content: "I heard you! As Nova Sonic, I'd suggest pairing those shoes with a bright summer dress." }]);
+        setMessages((prev) => [...prev, { role: "bot", content: "I heard your request. For a truly sophisticated presence, lean into monochromatic tones and rich textures like silk or cashmere." }]);
         setIsTyping(false);
       }, 2500);
     } else {
       setIsRecording(true);
     }
   };
+
 
   return (
     <>
@@ -102,14 +96,14 @@ export default function StylistChatBot() {
           {/* Header */}
           <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-6 py-5">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 border-2 border-[#D4AF37] shadow-[0_0_20px_rgba(212,175,55,0.3)]">
                 <MessageSquare size={20} className="text-[#D4AF37]" />
               </div>
               <div>
-                <h3 className="font-bold text-zinc-900 dark:text-white text-base tracking-tight">AI Stylist</h3>
+                <h3 className="font-serif italic font-bold text-zinc-900 dark:text-white text-lg tracking-tight">AI Stylist</h3>
                 <div className="flex items-center gap-1.5">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#D4AF37] animate-pulse" />
-                  <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#D4AF37]">Live Now</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Haute Couture Brain</p>
                 </div>
               </div>
             </div>
@@ -124,8 +118,8 @@ export default function StylistChatBot() {
               <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm shadow-sm leading-relaxed transition-all ${
                   msg.role === "user" 
-                    ? "bg-[#D4AF37]/10 border border-[#D4AF37]/20 text-zinc-900 dark:text-white rounded-br-sm" 
-                    : "bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 rounded-bl-sm"
+                    ? "bg-[#D4AF37]/5 border-l-4 border-l-[#D4AF37] text-zinc-900 dark:text-white rounded-br-sm" 
+                    : "bg-white dark:bg-zinc-800/80 border border-[#D4AF37]/30 text-zinc-800 dark:text-zinc-200 rounded-bl-sm ring-1 ring-[#D4AF37]/10"
                 }`}>
                   {msg.content}
                 </div>
@@ -162,6 +156,7 @@ export default function StylistChatBot() {
                 rows={1}
               />
               
+              
               <button 
                 onClick={toggleRecording}
                 className={`p-2 transition-colors ${isRecording ? "text-[#D4AF37] animate-pulse" : "text-zinc-400 hover:text-[#D4AF37]"}`}
@@ -169,7 +164,7 @@ export default function StylistChatBot() {
               >
                 <Mic size={20} />
               </button>
-              
+
               <button 
                 onClick={() => handleSend()}
                 disabled={!inputVal.trim()}

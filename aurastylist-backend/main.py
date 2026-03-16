@@ -6,7 +6,10 @@ load_dotenv()
 from mangum import Mangum
 
 from routers import analyze, style, gallery, shop, chat, profile, style_request
-app = FastAPI(title="AuraStylist Backend")
+
+# redirect_slashes=False prevents FastAPI from doing a 307 redirect
+# when a request hits /api/gallery instead of /api/gallery/
+app = FastAPI(title="AuraStylist Backend", redirect_slashes=False)
 
 app.add_middleware(
     CORSMiddleware,

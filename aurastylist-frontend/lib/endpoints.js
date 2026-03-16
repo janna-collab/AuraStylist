@@ -6,6 +6,7 @@ export const ENDPOINTS = {
   STYLE_OUTFITS: `${API_BASE_URL}/api/style/outfits`,
   GALLERY: `${API_BASE_URL}/api/gallery`,
   GALLERY_GENERATE: `${API_BASE_URL}/api/gallery/generate`,
+  GALLERY_REGENERATE: `${API_BASE_URL}/api/gallery/regenerate`,
   SHOP_ACTIVATE: `${API_BASE_URL}/api/shop/activate`,
    CHAT_MESSAGE: `${API_BASE_URL}/api/chat/message`,
    CHAT_VOICE: `${API_BASE_URL}/api/chat/voice`,

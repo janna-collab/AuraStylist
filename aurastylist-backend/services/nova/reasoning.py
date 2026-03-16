@@ -43,7 +43,9 @@ def generate_outfit_recommendation(
     messages = [{"role": "user", "content": [{"text": prompt}]}]
     
     try:
-        response = bedrock_client.converse(model_id, messages)
+        response = bedrock_client.converse(modelId=model_id, messages=messages)
+        if not response or 'output' not in response:
+            return "A stylish outfit tailored to your preferences."
         return "".join([c.get('text', '') for c in response['output']['message']['content'] if 'text' in c])
     except Exception as e:
         logger.error(f"Recommendation failed: {e}")
@@ -63,7 +65,10 @@ def generate_style_report_pro(analysis_data: str, manual_inputs: dict, use_omni:
     messages = [{"role": "user", "content": [{"text": prompt}]}]
     
     try:
-        response = bedrock_client.converse(model_id, messages)
+        response = bedrock_client.converse(modelId=model_id, messages=messages)
+        if not response or 'output' not in response:
+            logger.error(f"Report generation returned invalid response: {response}")
+            return None
         text = "".join([c.get('text', '') for c in response['output']['message']['content'] if 'text' in c])
         clean_json = text.replace("```json", "").replace("```", "").strip()
         return json.loads(clean_json)
@@ -81,7 +86,9 @@ def extract_search_terms(recommendation: str) -> dict:
     messages = [{"role": "user", "content": [{"text": prompt}]}]
     
     try:
-        response = bedrock_client.converse(NOVA_PRO, messages)
+        response = bedrock_client.converse(modelId=NOVA_PRO, messages=messages)
+        if not response or 'output' not in response:
+            return {"top": "fashion top", "bottom": "trousers"}
         text = "".join([c.get('text', '') for c in response['output']['message']['content'] if 'text' in c])
         clean_json = text.replace("```json", "").replace("```", "").strip()
         return json.loads(clean_json)
@@ -105,7 +112,9 @@ def extract_outfit_components(outfit_description: str) -> Optional[dict]:
         }
     ]
     try:
-        response = bedrock_client.converse(NOVA_PRO, messages)
+        response = bedrock_client.converse(modelId=NOVA_PRO, messages=messages)
+        if not response or 'output' not in response:
+            return None
         text = "".join([c.get('text', '') for c in response['output']['message']['content'] if 'text' in c])
         clean_json = text.replace("```json", "").replace("```", "").strip()
         return json.loads(clean_json)
@@ -146,7 +155,9 @@ def generate_image_prompt(request_data: dict, use_omni: bool = False) -> dict:
     }
 
     try:
-        response = bedrock_client.converse(model_id, messages)
+        response = bedrock_client.converse(modelId=model_id, messages=messages)
+        if not response or 'output' not in response:
+            return default_res
         text = "".join([c.get('text', '') for c in response['output']['message']['content'] if 'text' in c])
         clean_json = text.replace("```json", "").replace("```", "").strip()
         data = json.loads(clean_json)
@@ -168,6 +179,8 @@ def invoke_nova(model_id: str, messages: list, system_prompts: list = None) -> s
             kwargs["system"] = [{"text": s} for s in system_prompts]
             
         response = bedrock_client.converse(**kwargs)
+        if not response or 'output' not in response:
+            return ""
         return "".join([c.get('text', '') for c in response['output']['message']['content'] if 'text' in c])
     except Exception as e:
         logger.error(f"Invoke Nova failed: {e}")
