@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Camera, ArrowRight, User } from "lucide-react";
+import { API_BASE_URL } from "@/lib/endpoints";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function SignupPage() {
     
     try {
       // Check if this email already has a profile in the backend
-      const res = await fetch(`http://localhost:8000/api/profile/${formData.email}`);
+      const res = await fetch(`${API_BASE_URL}/api/profile/${formData.email}`);
       if (res.ok) {
         alert("User already exists. Redirecting to login...");
         router.push("/login");

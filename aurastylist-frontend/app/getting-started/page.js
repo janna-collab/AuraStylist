@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import PhotoUpload from "@/components/onboarding/PhotoUpload";
@@ -8,16 +8,30 @@ import ManualInputsForm from "@/components/onboarding/ManualInputsForm";
 import ReportResult from "@/components/onboarding/ReportResult";
 import NavbarLogo from "@/components/NavbarLogo";
 import { API_BASE_URL } from "@/lib/endpoints";
+import { useUserProfileStore } from "@/store/userProfile";
 
 export default function GettingStartedPage() {
   const router = useRouter();
+  const setDetails = useUserProfileStore(state => state.setDetails);
+  const setStyleReport = useUserProfileStore(state => state.setStyleReport);
+  
   const [step, setStep] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [user, setUser] = useState(null);
   const [onboardingData, setOnboardingData] = useState({
     imageFile: null,
     manualInputs: null,
     reportData: null,
   });
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("aura_user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    } else {
+      router.push("/login");
+    }
+  }, [router]);
 
   const handleLogout = () => {
     localStorage.removeItem("aura_user");
@@ -42,17 +56,14 @@ export default function GettingStartedPage() {
       if (onboardingData.imageFile) {
         formData.append("image", onboardingData.imageFile);
       }
+      formData.append("gender", inputs.gender);
       formData.append("height", inputs.height);
       formData.append("shoeSize", inputs.shoeSize);
       formData.append("preferredFit", inputs.preferredFit);
-      
-      const user = JSON.parse(localStorage.getItem("aura_user") || "{}");
-      if (user.email) {
-        formData.append("userId", user.email);
-        formData.append("name", user.name || "User");
-      }
+      formData.append("userId", user?.email || "user_123");
+      formData.append("name", user?.name || "User");
 
-      // Call FastAPI backend (assuming it's running on port 8000)
+      // Call FastAPI backend
       const res = await fetch(`${API_BASE_URL}/api/profile/generate`, {
         method: "POST",
         body: formData,
@@ -61,6 +72,19 @@ export default function GettingStartedPage() {
       if (res.ok) {
         const data = await res.json();
         setOnboardingData((prev) => ({ ...prev, reportData: data }));
+        
+        // Hydrate global store
+        setDetails({
+            gender: inputs.gender,
+            height: inputs.height,
+            shoeSize: inputs.shoeSize,
+            preferredFit: inputs.preferredFit
+        });
+        
+        if (data.report || data) {
+            setStyleReport(data.report || data);
+        }
+        
         // Persist the profile to localStorage so login flow can find it later
         localStorage.setItem("aura_profile", JSON.stringify(data));
         setIsGenerating(false);

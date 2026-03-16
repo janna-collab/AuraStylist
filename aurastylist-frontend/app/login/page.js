@@ -2,11 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useUserProfileStore } from "@/store/userProfile";
 import Link from "next/link";
 import { Camera, ArrowRight } from "lucide-react";
+import { API_BASE_URL } from "@/lib/endpoints";
 
 export default function LoginPage() {
   const router = useRouter();
+  const setDetails = useUserProfileStore(state => state.setDetails);
+  const setStyleReport = useUserProfileStore(state => state.setStyleReport);
+  
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -22,10 +27,24 @@ export default function LoginPage() {
     
     try {
       // Fetch existing profile from backend using the unique email
-      const res = await fetch(`http://localhost:8000/api/profile/${formData.email}`);
+      const res = await fetch(`${API_BASE_URL}/api/profile/${formData.email}`);
       if (res.ok) {
         const profileData = await res.json();
-        localStorage.setItem("aura_profile", JSON.stringify(profileData.report || profileData));
+        
+        // Hydrate store from profile results
+        if (profileData.inputs) {
+            setDetails({
+                gender: profileData.inputs.gender,
+                height: profileData.inputs.height,
+                shoeSize: profileData.inputs.shoeSize,
+                preferredFit: profileData.inputs.preferredFit
+            });
+        }
+        
+        const report = profileData.report || profileData;
+        setStyleReport(report);
+        
+        localStorage.setItem("aura_profile", JSON.stringify(report));
         
         // Update aura_user with the actual name from the profile
         const actualName = profileData.inputs?.name || "User";

@@ -71,12 +71,12 @@ export default function OutfitCard({ imageUrl, altText, isSelected, onSelect, on
           </button>
           
           {isSelected && (
-            <Link
-              href={`/shop?image_url=${encodeURIComponent(imageUrl)}`}
+            <button
+              onClick={() => window.open(`https://www.google.com/search?tbm=shop&q=${encodeURIComponent(altText)}`, '_blank')}
               className="flex items-center gap-2 rounded-xl bg-white text-black px-4 py-3 font-bold hover:scale-105 transition-transform ml-2 shadow-lg"
             >
-              <ShoppingBag size={18} /> Shop Look
-            </Link>
+              <ShoppingBag size={18} /> Buy Now
+            </button>
           )}
         </div>
       </div>

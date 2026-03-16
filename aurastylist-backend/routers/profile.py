@@ -12,15 +12,17 @@ router = APIRouter()
 @router.post("/generate")
 async def generate_profile(
     image: Optional[UploadFile] = File(None),
+    gender: str = Form("Female"),
     height: str = Form(...),
     shoeSize: str = Form(...),
     preferredFit: str = Form(...),
-    userId: Optional[str] = Form("user_123"),
-    name: Optional[str] = Form("User")
+    userId: str = Form("user_123"),
+    name: str = Form("User")
 ):
     try:
         user_id = userId
         manual_inputs = {
+            "gender": gender,
             "name": name,
             "height": height,
             "shoeSize": shoeSize,
@@ -49,7 +51,10 @@ async def generate_profile(
         # Call Nova Pro for the final JSON report
         report = None
         try:
-            report = nova.generate_style_report_pro(analysis_data, manual_inputs)
+            report = nova.generate_style_report_pro(
+                analysis_data=str(analysis_data),
+                manual_inputs=manual_inputs
+            )
         except Exception as e:
             logger.error(f"Style report generation failed: {e}")
             

@@ -7,6 +7,7 @@ import { useUserProfileStore } from "@/store/userProfile";
 export default function ManualInputsForm({ onComplete, onBack }) {
   const bodyAnalysis = useUserProfileStore(state => state.bodyAnalysis);
   const [formData, setFormData] = useState({
+    gender: "Female",
     height: "",
     shoeSize: "",
     preferredFit: "Tailored",
@@ -57,6 +58,30 @@ export default function ManualInputsForm({ onComplete, onBack }) {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Gender Selection */}
+        <div className="space-y-3">
+          <label className="text-sm font-medium text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+            <Sparkles size={16} className="text-zinc-400" />
+            Gender
+          </label>
+          <div className="flex gap-2">
+            {["Female", "Male", "Other"].map((g) => (
+              <button
+                key={g}
+                type="button"
+                onClick={() => setFormData({ ...formData, gender: g })}
+                className={`flex-1 rounded-xl py-3 text-sm font-medium transition-all ${
+                  formData.gender === g
+                    ? "bg-black text-white dark:bg-white dark:text-black"
+                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                }`}
+              >
+                {g}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="grid gap-6 sm:grid-cols-2">
           {/* Height Input */}
           <div className="space-y-2">

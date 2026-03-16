@@ -9,6 +9,7 @@ export default function StyleSomeoneElseForm({ onSubmit, isLoading }) {
     height: "",
     venue: "",
     aesthetic: "",
+    priceRange: "Mid Range"
   });
   const [targetImage, setTargetImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -82,7 +83,7 @@ export default function StyleSomeoneElseForm({ onSubmit, isLoading }) {
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         {/* Gender */}
         <div>
           <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Gender</label>
@@ -93,7 +94,6 @@ export default function StyleSomeoneElseForm({ onSubmit, isLoading }) {
           >
             <option value="Female">Female</option>
             <option value="Male">Male</option>
-            <option value="Non-binary">Non-binary</option>
             <option value="Other">Other</option>
           </select>
         </div>
@@ -105,10 +105,26 @@ export default function StyleSomeoneElseForm({ onSubmit, isLoading }) {
             type="text"
             required
             className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-[#D4AF37] transition-all outline-none shadow-sm"
-            placeholder="e.g., 5'6&quot; or 168cm"
+            placeholder="e.g. 5'8\"
             value={formData.height}
             onChange={(e) => setFormData({ ...formData, height: e.target.value })}
           />
+        </div>
+
+        {/* Size */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Size</label>
+          <select
+            className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-[#D4AF37] transition-all outline-none shadow-sm appearance-none"
+            value={formData.size || "M"}
+            onChange={(e) => setFormData({ ...formData, size: e.target.value })}
+          >
+            <option value="XS">XS</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+          </select>
         </div>
       </div>
 
@@ -128,18 +144,34 @@ export default function StyleSomeoneElseForm({ onSubmit, isLoading }) {
       </div>
 
       {/* Aesthetic */}
-      <div>
-        <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          Desired Aesthetic
-        </label>
-        <input
-          type="text"
-          required
-          className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-[#D4AF37] transition-all outline-none shadow-sm"
-          placeholder="What's the vibe?"
-          value={formData.aesthetic}
-          onChange={(e) => setFormData({ ...formData, aesthetic: e.target.value })}
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            Desired Aesthetic
+          </label>
+          <input
+            type="text"
+            required
+            className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-[#D4AF37] transition-all outline-none shadow-sm"
+            placeholder="What's the vibe?"
+            value={formData.aesthetic}
+            onChange={(e) => setFormData({ ...formData, aesthetic: e.target.value })}
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Budget</label>
+          <select
+            className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-[#D4AF37] transition-all outline-none shadow-sm appearance-none"
+            value={formData.priceRange}
+            onChange={(e) => setFormData({ ...formData, priceRange: e.target.value })}
+          >
+            <option value="Low Range">Low Range</option>
+            <option value="Mid Range">Mid Range</option>
+            <option value="High Range">High Range</option>
+            <option value="All Range">All Range</option>
+          </select>
+        </div>
       </div>
 
       <button

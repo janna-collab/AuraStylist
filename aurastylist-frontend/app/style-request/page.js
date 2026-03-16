@@ -15,7 +15,7 @@ import { CheckCircle2, Info, Loader2, Image as ImageIcon } from "lucide-react";
 export default function StyleRequestPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("myself"); // 'myself' or 'someone'
-  const { height, shoeSize, preferredFit, bodyAnalysis, setStyleReport, setStyleOutfits } = useUserProfileStore();
+  const { height, shoeSize, preferredFit, gender, bodyAnalysis, setStyleReport, setStyleOutfits } = useUserProfileStore();
   const [showResults, setShowResults] = useState(false);
   const [report, setLocalReport] = useState(null);
   const [outfits, setLocalOutfits] = useState([]);
@@ -36,7 +36,7 @@ export default function StyleRequestPage() {
         target_type: activeTab,
         venue: data.venue,
         aesthetic: data.aesthetic,
-        gender: activeTab === "someone" ? data.gender : undefined,
+        gender: activeTab === "someone" ? data.gender : gender,
         height: activeTab === "myself" ? height : data.height,
         dress_type: data.dressType,
         price_range: data.priceRange,

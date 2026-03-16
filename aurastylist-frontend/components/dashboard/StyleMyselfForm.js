@@ -8,7 +8,7 @@ export default function StyleMyselfForm({ onSubmit, isLoading }) {
     venue: "",
     aesthetic: "",
     dressType: "Casual",
-    priceRange: "$$"
+    priceRange: "Mid Range"
   });
   const [referenceImage, setReferenceImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -71,10 +71,10 @@ export default function StyleMyselfForm({ onSubmit, isLoading }) {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {/* Dress Type */}
           <div>
-            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Dress Type</label>
+            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Type</label>
             <select
               className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-[#D4AF37] transition-all outline-none shadow-sm appearance-none"
               value={formData.dressType}
@@ -82,23 +82,39 @@ export default function StyleMyselfForm({ onSubmit, isLoading }) {
             >
               <option value="Casual">Casual</option>
               <option value="Smart Casual">Smart Casual</option>
-              <option value="Business Professional">Business Professional</option>
-              <option value="Formal / Black Tie">Formal / Black Tie</option>
+              <option value="Formal">Formal</option>
               <option value="Streetwear">Streetwear</option>
+            </select>
+          </div>
+
+          {/* Size Selection */}
+          <div>
+            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Size</label>
+            <select
+              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-[#D4AF37] transition-all outline-none shadow-sm appearance-none"
+              value={formData.size || "M"}
+              onChange={(e) => setFormData({ ...formData, size: e.target.value })}
+            >
+              <option value="XS">XS</option>
+              <option value="S">S</option>
+              <option value="M">M</option>
+              <option value="L">L</option>
+              <option value="XL">XL</option>
             </select>
           </div>
 
           {/* Price Range */}
           <div>
-            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Price Range</label>
+            <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Budget</label>
             <select
               className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-[#D4AF37] transition-all outline-none shadow-sm appearance-none"
               value={formData.priceRange}
               onChange={(e) => setFormData({ ...formData, priceRange: e.target.value })}
             >
-              <option value="$">$ (Budget-friendly)</option>
-              <option value="$$">$$ (Mid-range)</option>
-              <option value="$$$">$$$ (Designer/Premium)</option>
+              <option value="Low Range">Low Range</option>
+              <option value="Mid Range">Mid Range</option>
+              <option value="High Range">High Range</option>
+              <option value="All Range">All Range</option>
             </select>
           </div>
         </div>

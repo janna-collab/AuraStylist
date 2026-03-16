@@ -26,7 +26,8 @@ class PromptFactory:
             "Do not alter facial identity, expression, or skin details. "
             f"Keep the original person's pose, body shape, skin tone, and silhouette exactly the same. "
             f"Replace only the clothing and accessories with {recommendation} for a {aesthetic} look at {venue}. "
-            f"{detail_str} "
+            f"MANDATORY: If gender is {gender}, ensure the attire is strictly {gender}-appropriate and traditionally styled for that gender. "
+            f"STRICT INSTRUCTION: The size must appear as {size or 'standard'}. "
             "Add elegant styling details, polished couture finishing, and crisp high-resolution textures. "
             "The output must look like a real fashion editorial photo, preserving identity and facial features."
         )
