@@ -176,7 +176,7 @@ def invoke_nova(model_id: str, messages: list, system_prompts: list = None) -> s
             "messages": messages,
         }
         if system_prompts:
-            kwargs["system_prompts"] = system_prompts
+            kwargs["system"] = [{"text": s} for s in system_prompts]
             
         response = bedrock_client.converse(**kwargs)
         if not response or 'output' not in response:

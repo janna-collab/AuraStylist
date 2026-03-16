@@ -85,11 +85,11 @@ class StyleOrchestrator:
         negative = self.prompt_factory.get_standard_negative()
         
         if image_bytes and user_request.get("target_type") in ["myself", "someone"]:
-            # Virtual Try-On with original image
-            result["images"] = inpaint_image(image_bytes, final_prompt, negative, gender=user_request.get("gender"))
+            # Virtual Try-On with original image - Ensure 4 images
+            result["images"] = inpaint_image(image_bytes, final_prompt, negative, count=4, gender=user_request.get("gender"))
         else:
-            # Text-to-image variation
-            result["images"] = generate_image(final_prompt, negative, use_omni=self.use_omni, gender=user_request.get("gender"))
+            # Text-to-image variation - Ensure 4 images
+            result["images"] = generate_image(final_prompt, negative, count=4, use_omni=self.use_omni, gender=user_request.get("gender"))
         
         result["status"] = "success"
         return result

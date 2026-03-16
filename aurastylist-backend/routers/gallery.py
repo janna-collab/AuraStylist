@@ -47,7 +47,7 @@ async def generate_images_background(request_id: str):
 
         gender = request_doc.get("gender") or "female"
         gender_subject = "female fashion model" if gender.lower() in ("female", "woman", "girl") else "male fashion model" if gender.lower() in ("male", "man", "boy") else "fashion model"
-        
+
         prompt = (
             f"Create a photorealistic FULL-BODY fashion editorial photo of a {gender_subject}. "
             "MANDATORY: Show the complete outfit HEAD-TO-TOE — face, torso, legs, and feet. NO cropping. "
@@ -108,7 +108,8 @@ async def virtual_tryon(
             negative_prompt="low quality, cartoon, text, watermark, deformed, blurred",
             source_image_bytes=image_bytes,
             image_format=ext,
-            count=4
+            count=4,
+            gender=None # Optional: we could extract this from profile if available
         )
 
         if not images:

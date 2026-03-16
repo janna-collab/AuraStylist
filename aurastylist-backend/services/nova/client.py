@@ -56,15 +56,15 @@ class BedrockClient:
         retry_error_callback=lambda retry_state: retry_state.outcome.result(),
         before_sleep=lambda retry_state: logger.warning(f"Retrying converse after transient error...")
     )
-    def converse(self, modelId: str, messages: list, system_prompts: Optional[list] = None):
+    def converse(self, modelId: str, messages: list, system: Optional[list] = None):
         """Wrapper for the Bedrock Converse API."""
         try:
             kwargs = {
                 "modelId": modelId,
                 "messages": messages,
             }
-            if system_prompts:
-                kwargs["system"] = [{"text": p} for p in system_prompts]
+            if system:
+                kwargs["system"] = system
 
             response = self.client.converse(**kwargs)
             if not response:
