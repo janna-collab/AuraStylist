@@ -1,4 +1,4 @@
-# AuraStylist: Advanced AI Fashion Orchestration
+# AuraStylist : Advanced AI Fashion Orchestration
 
 Welcome to **AuraStylist**, a premium AI-powered fashion ecosystem built for the **Amazon Nova AI Hackathon**. AuraStylist bridges the gap between digital style inspiration and real-world shopping by leveraging high-fidelity multimodal intelligence to analyze, curate, and source the perfect ensemble.
 
